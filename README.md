@@ -48,6 +48,27 @@ probs
 
     []
 
+Its colophons number the chapters, so `assemble_colophon` can cut there instead, reading each chapter’s number and name from its colophon; `cut` lays the chapters into titles and `numbering` reports a run’s numbers:
+
+``` python
+cc, _ = assemble_colophon(bj)
+[(c['part'], c['no'], c['name'], len(c['verses'])) for c in cc]
+```
+
+    [('पूर्व', 3, 'वियोनिजन्म', 8), ('पूर्व', 4, 'निषेक', 22)]
+
+``` python
+[t['title'] for t in cut(cc, 'chapters', book='बृहज्जातकम्')], numbering(cc[1]['verses'])
+```
+
+    (['बृहज्जातकम् १ वियोनिजन्म', 'बृहज्जातकम् २ निषेक'],
+     {'numbered': 22,
+      'unnumbered': 0,
+      'skipped': [],
+      'repeated': [],
+      'first': 1,
+      'last': 22})
+
 The Vidhānamālai prints each verse’s number at the end of its urai, the prose gloss after it. The urai goes into its verse’s notes, and gives the verse its number:
 
 ``` python
@@ -73,9 +94,10 @@ uro = json.load(open('samples/uromarishi.json'))
 
 ## The pieces
 
-- [`vnum`](https://vedicreader.github.io/lekhaka/verses.html#vnum), [`mend`](https://vedicreader.github.io/lekhaka/verses.html#mend), [`renumber`](https://vedicreader.github.io/lekhaka/verses.html#renumber), [`assemble`](https://vedicreader.github.io/lekhaka/verses.html#assemble), [`check_counts`](https://vedicreader.github.io/lekhaka/verses.html#check_counts): numbers and chapters.
-- `apply_fixes`, `number_runs`, `borrow_numbers`, `cut_by_plan`: what a reading gets wrong, put right before [`assemble`](https://vedicreader.github.io/lekhaka/verses.html#assemble).
-- [`fix_aksharas`](https://vedicreader.github.io/lekhaka/verses.html#fix_aksharas), [`bad_aksharas`](https://vedicreader.github.io/lekhaka/verses.html#bad_aksharas): malformed Devanagari akṣaras.
+- [`vnum`](https://vedicreader.github.io/lekhaka/verses.html#vnum), [`mend`](https://vedicreader.github.io/lekhaka/verses.html#mend), [`renumber`](https://vedicreader.github.io/lekhaka/verses.html#renumber), [`assemble`](https://vedicreader.github.io/lekhaka/verses.html#assemble), `assemble_colophon`, [`check_counts`](https://vedicreader.github.io/lekhaka/verses.html#check_counts): numbers and chapters. A page’s blocks may sit under `blocks` or `items`; a `head` is a heading (`KINDS`); `join_cont` rejoins a block a page break cut.
+- `apply_fixes`, `number_runs`, `borrow_numbers`, `cut_by_plan`, `drop_pages`: what a reading gets wrong, put right before [`assemble`](https://vedicreader.github.io/lekhaka/verses.html#assemble). `fix_chapters`, `sutras`: after it.
+- [`fix_aksharas`](https://vedicreader.github.io/lekhaka/verses.html#fix_aksharas), [`bad_aksharas`](https://vedicreader.github.io/lekhaka/verses.html#bad_aksharas), `norm`, `virama`: malformed akṣaras and typing slips in Devanagari.
+- `cut`, `numbering`: verses laid into titles. `witness_verses`, `text_changes`, `ref_check`, `move_lines`: a reading checked against another edition. `verse_text`, `disagree`, `compare`: two readings of a page compared.
 - [`read_book`](https://vedicreader.github.io/lekhaka/book.html#read_book), [`book_md`](https://vedicreader.github.io/lekhaka/book.html#book_md): a book end to end, through vishalakshi.
 
 ``` python

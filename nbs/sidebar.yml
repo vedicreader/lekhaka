@@ -5,3 +5,4 @@ website:
       - 00_verses.ipynb
       - 01_book.ipynb
       - 02_repairs.ipynb
+      - 03_editions.ipynb
