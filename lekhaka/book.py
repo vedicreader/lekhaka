@@ -11,10 +11,12 @@ __all__ = ['read_book', 'book_md']
 from fastcore.all import AttrDict, L, Path
 from vishalakshi import read_doc
 from .verses import assemble, check_counts, fix_aksharas, bad_aksharas
+from .repairs import apply_fixes
 
 # %% ../nbs/01_book.ipynb #5017b6df
 def read_book(path, vault=None, model:str=None, preset:str='sanskrit', title:str='', script:str='Devanagari', hint:str='',
-              pages=None, counts=None, fix:bool=True, pair:bool=False, dpi:int=300, workers:int=4, chat=None) -> AttrDict:
+              pages=None, counts=None, fix:bool=True, pair:bool=False, kinds=('verse', None), notes=(), number_from_note:bool=False,
+              fixes=None, dpi:int=300, workers:int=4, chat=None) -> AttrDict:
     "A book's chapters `[{heading, colophon, verses}]`, the problems a proofreader should see, and the pages they came from."
     kw = dict(parse='llm', model=model, preset=preset, script=script, hint=hint, pages=pages, dpi=dpi, workers=workers, chat=chat)
     if vault is not None:
@@ -22,7 +24,9 @@ def read_book(path, vault=None, model:str=None, preset:str='sanskrit', title:str
         did, ps = o['doc_id'], vault.pages(o['doc_id'])
     else: did, ps = None, read_doc(path, title=title, **kw)
     ps = [dict(page=p['page'], blocks=p.get('blocks') or []) for p in ps if pages is None or p['page'] in set(pages)]
-    chs, probs = assemble(ps, pair)
+    probs = []
+    if fixes: apply_fixes(ps, fixes, probs=probs)
+    chs, more = assemble(ps, pair, kinds, notes, number_from_note); probs += more
     for c in chs:
         for v in c['verses']:
             if fix and script == 'Devanagari' and bad_aksharas(v['text']): v['text'] = fix_aksharas(v['text'])

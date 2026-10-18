@@ -1,0 +1,7 @@
+website:
+  sidebar:
+    contents:
+      - index.ipynb
+      - 00_verses.ipynb
+      - 01_book.ipynb
+      - 02_repairs.ipynb

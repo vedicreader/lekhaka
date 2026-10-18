@@ -28,11 +28,58 @@ With a vault the pages are kept as versions of one document: `vault.proofread(b.
 
 The pieces work on their own, on the pages `vishalakshi.read_doc` returns or any `{page, blocks}` list:
 
-``` python
-chs, probs = assemble([dict(page=0, blocks=[dict(kind='verse', n='॥१॥', text='क ॥१॥'), dict(kind='verse', n='३', text='ख ॥३॥')])])
-[v['n'] for v in chs[0]['verses']], probs
-```
+## On real books
+
+`nbs/samples` holds a few pages each of three books vedicreader has read, as a model returned them. Sixteen pages of Varāhamihira’s Bṛhajjātaka assemble into its third and fourth chapters, each opened by its heading and closed by its colophon:
 
 ``` python
-fix_aksharas('ध्ार्म'), vnum('२६॥२७')
+import json
+bj = json.load(open('samples/brihat_jataka.json'))
+chs, probs = assemble(bj)
+[(c['heading'], len(c['verses']), (c['colophon'] or '')[:40]) for c in chs]
 ```
+
+    [('वियोनिजन्माध्यायः', 8, 'इति श्रीवराहमिहिरकृते बृहज्जातके वियोनिज'),
+     ('निषेकाध्यायः', 22, 'इति श्रीवराहमिहिरकृते बृहज्जातके निषेकाध')]
+
+``` python
+probs
+```
+
+    []
+
+The Vidhānamālai prints each verse’s number at the end of its urai, the prose gloss after it. The urai goes into its verse’s notes, and gives the verse its number:
+
+``` python
+vm = json.load(open('samples/vidhanamalai.json'))
+chs, probs = assemble(vm, notes=('urai',), number_from_note=True)
+v = chs[0]['verses'][0]
+len(chs[0]['verses']), v['n'], v['text'].split('\n')[0], v['notes']['urai'][0][:60]
+```
+
+    (11,
+     1,
+     'பூமகள் கேள்வன்பொன் னுடையன் புட்கொடி யோன் புனித,',
+     '(என்றது.) ஸ்ரீமகாலக்ஷ்மிக்கு நாயகரும், பீதாம்பரத்தையுடையவரும')
+
+Uromarishi’s Pañcapakṣi (1917) numbers its verses in Tamil numerals with the old signs for ten and a hundred:
+
+``` python
+uro = json.load(open('samples/uromarishi.json'))
+[(b['n'], vnum(b['n'])) for p in uro for b in p['blocks'] if '௱' in str(b.get('n') or '')][:4]
+```
+
+    [('௨௱௫', 205), ('௨௱௬', 206), ('௨௱௭', 207), ('௨௱௮', 208)]
+
+## The pieces
+
+- [`vnum`](https://vedicreader.github.io/lekhaka/verses.html#vnum), [`mend`](https://vedicreader.github.io/lekhaka/verses.html#mend), [`renumber`](https://vedicreader.github.io/lekhaka/verses.html#renumber), [`assemble`](https://vedicreader.github.io/lekhaka/verses.html#assemble), [`check_counts`](https://vedicreader.github.io/lekhaka/verses.html#check_counts): numbers and chapters.
+- `apply_fixes`, `number_runs`, `borrow_numbers`, `cut_by_plan`: what a reading gets wrong, put right before [`assemble`](https://vedicreader.github.io/lekhaka/verses.html#assemble).
+- [`fix_aksharas`](https://vedicreader.github.io/lekhaka/verses.html#fix_aksharas), [`bad_aksharas`](https://vedicreader.github.io/lekhaka/verses.html#bad_aksharas): malformed Devanagari akṣaras.
+- [`read_book`](https://vedicreader.github.io/lekhaka/book.html#read_book), [`book_md`](https://vedicreader.github.io/lekhaka/book.html#book_md): a book end to end, through vishalakshi.
+
+``` python
+fix_aksharas('ध्ार्म'), vnum('२६॥२७'), vnum('२६॥ १', pick='first')
+```
+
+    ('धार्म', 27, 26)
