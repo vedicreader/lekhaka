@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "lekhaka"
+  site-url: "https://vedicreader.github.io/lekhaka"
+  description: "Books of verses read into chapters: verse numbers mended, chapters assembled, akṣaras repaired. On vishalakshi."
+  repo-branch: main
+  repo-url: "https://github.com/vedicreader/lekhaka"

@@ -1,0 +1,42 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "lekhaka"
+dynamic = ["version"]
+description = "Books of verses read into chapters: verse numbers mended, chapters assembled, akṣaras repaired. On vishalakshi."
+readme = "README.md"
+requires-python = ">=3.12"
+license = {text = "Apache-2.0"}
+authors = [{name = "Karthik", email = "karthik.rajgopal@hotmail.com"}]
+keywords = ['nbdev', 'sanskrit', 'tamil', 'ocr', 'verse', 'books']
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+]
+dependencies = [
+    "fastcore>=1.8.0",
+    "vishalakshi>=0.1.20",
+]
+
+[project.urls]
+Repository = "https://github.com/vedicreader/lekhaka"
+Documentation = "https://vedicreader.github.io/lekhaka/"
+
+[project.entry-points.nbdev]
+lekhaka = "lekhaka._modidx:d"
+
+[tool.nbdev]
+
+[tool.hatch.build.targets.wheel]
+packages = ["lekhaka"]
+
+[tool.hatch.build.targets.sdist]
+include = ["/lekhaka", "/README.md", "/pyproject.toml"]
+
+[tool.hatch.version]
+path = "lekhaka/__init__.py"
+
+[dependency-groups]
+dev = ["nbdev>=3.3.4", "ipykernel>=7.3.0"]
