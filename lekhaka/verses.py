@@ -64,14 +64,13 @@ def renumber(vs, where, probs:list) -> list:
 # %% ../nbs/00_verses.ipynb #5243753f
 def _alike(a, b, at=.8): return SequenceMatcher(None, a, b).ratio() >= at
 
-def assemble(pages, pair:bool=False) -> tuple:
-    "Chapters `[{heading, colophon, verses}]` from pages of blocks, and the problems seen."
+def assemble(pages, pair:bool=False, kinds=('verse', None)) -> tuple:
+    "Chapters `[{heading, colophon, verses}]` from pages of blocks, and the problems seen; `kinds` None takes every block but headings and colophons as verse."
     chs, cur, buf, probs, hd = [], None, [], [], None
     new = lambda h=None: dict(heading=h, colophon=None, verses=[])
     for p in pages:
         for b in p.get('blocks') or p.get('items') or []:
-            k, t, n, pg = b.get('kind'), (b.get('text') or '').strip(), b.get('n'), p.get('page')
-            if not t: continue
+            k, t, n, pg = b.get('kind'), b.get('text') or '', b.get('n'), p.get('page')   # text as read: a leading break or an empty block is the reader's
             if k == 'heading':
                 hd = t
                 if cur is None: cur = new(t)
@@ -85,7 +84,7 @@ def assemble(pages, pair:bool=False) -> tuple:
                 (cur or new())['colophon'] = t
                 if cur: chs.append(cur); cur = None
                 continue
-            if k not in ('verse', None): continue
+            if kinds is not None and k not in kinds: continue
             if (n := vnum(n, pg, probs) if n is not None else None) is None:
                 if not (buf and _alike(buf[-1], t)): buf.append(t)
                 continue
