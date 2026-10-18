@@ -1620,7 +1620,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "fastcore", specifier = ">=1.8.0" },
-    { name = "vishalakshi", specifier = ">=0.1.20" },
+    { name = "vishalakshi", specifier = ">=0.1.21" },
 ]
 
 [package.metadata.requires-dev]
@@ -3693,7 +3693,7 @@ wheels = [
 
 [[package]]
 name = "vishalakshi"
-version = "0.1.20"
+version = "0.1.21"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "fastcore" },
@@ -3713,9 +3713,9 @@ dependencies = [
     { name = "varga" },
     { name = "vruksha" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/34/a6/efc13c6960a09521adc9cfdc5c395732ef6f37f2580cd3bb933fba4647e6/vishalakshi-0.1.20.tar.gz", hash = "sha256:8b1f92eac1369b9e3aa0a48c5a7b070f734f5bce530ff6cd6f4d7a0be29e6644", size = 85893, upload-time = "2026-10-18T09:58:47.661Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a0/dc/c50e971224d6ccd4ed062da644220e3af1e14eb048a8c24a04566c2c6102/vishalakshi-0.1.21.tar.gz", hash = "sha256:8b8f6f9a85df830d8b93b5336637b28b8e2a98c28dbac6208acc40a45c6ab36b", size = 85996, upload-time = "2026-10-18T10:09:50.253Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/54/5d/57f614dda433d1a6888a7ae6809d6c5f1507c14985f364a1de255e051e31/vishalakshi-0.1.20-py3-none-any.whl", hash = "sha256:fed9cfae182923d81a1815dd3697f1c404b3a14c457ef2e94654bb5661348ea0", size = 94756, upload-time = "2026-10-18T09:58:46.358Z" },
+    { url = "https://files.pythonhosted.org/packages/6b/c7/2455cbb2be29dae136f11e7578083469f599dc2ec168bd652fbf376e859d/vishalakshi-0.1.21-py3-none-any.whl", hash = "sha256:d9acdaab296273e6ec2956ca4a237d951d6b5f4c2c5cff5776a714511d0d3d9f", size = 94859, upload-time = "2026-10-18T10:09:48.81Z" },
 ]
 
 [[package]]

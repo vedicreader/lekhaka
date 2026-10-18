@@ -17,7 +17,7 @@ classifiers = [
 ]
 dependencies = [
     "fastcore>=1.8.0",
-    "vishalakshi>=0.1.20",
+    "vishalakshi>=0.1.21",
 ]
 
 [project.urls]
