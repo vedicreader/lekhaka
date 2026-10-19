@@ -1,4 +1,4 @@
-"""verses laid into titles, a run's numbering reported, a reading checked against a witness edition, two readings of a page compared
+"""Lay verses out as titles for publishing, report a run's numbering, check a reading against another edition, and measure how far two readings differ
 
 Docs: https://vedicreader.github.io/lekhaka/editions.html.md"""
 
@@ -25,7 +25,7 @@ def _tag(vs, letters, word):
     return out
 
 def cut(chs, how:str='per', per:int=10, open_word:str='मङ्गलम्', stem:str='work', book:str='', digits=deva, letters:str=LETTERS) -> list:
-    "Chapters' verses laid into titles `[{name, title, chapter, verses}]`: `per` verses a title by their numbers, a title a chapter, or `one`."
+    "Divide chapters' verses into titles `[{name, title, chapter, verses}]`: one for every `per` verses, one for each chapter, or one for the whole work."
     tag = lambda vs: _tag(vs, letters, open_word)
     if how == 'chapters':
         return [dict(name=f'{stem}_{i:02d}', title=' '.join(x for x in (book, digits(i), c.get('heading')) if x), chapter=i, verses=tag(c['verses'])) for i, c in enumerate(chs, 1)]
@@ -46,7 +46,7 @@ def cut(chs, how:str='per', per:int=10, open_word:str='मङ्गलम्', s
     return out
 
 def numbering(vs) -> dict:
-    "What a run of verses' own numbers say: how many are numbered and unnumbered, the numbers skipped and repeated, the first and last."
+    "Report what a run of verses' own numbers say: how many are numbered and unnumbered, which are skipped or repeated, and the first and last."
     ns = [n for v in vs if (n := vnum(v['n'])) is not None]
     seen, rep = set(), []
     for n in ns:
@@ -57,7 +57,7 @@ def numbering(vs) -> dict:
 
 # %% ../nbs/03_editions.ipynb #2e4287ca
 def witness_verses(raw:str, translit=None) -> list:
-    "A witness edition's verses `[(n, text)]` from its raw page: markup gone, cut at each `॥ n ॥` or `|| n ||`; `translit` reads IAST as Devanagari."
+    "Cut a witness edition's raw page into verses `[(n, text)]` at each `॥ n ॥` or `|| n ||`, with the markup removed; `translit` turns an IAST page into Devanagari."
     t = re.sub(r'<[^>]+>', '\n', re.sub(r'(?is)<(script|style)[^>]*>.*?</\1>', '', raw)).replace('&nbsp;', ' ')
     t = re.sub(r'\|\|\s*[A-Za-z]+_[\d.]*?(\d+)\s*\|\|', r'@@\1@@', t)   # GRETIL's `|| BharSt_1.12 ||`: the verse's own number
     if translit and len(re.findall(r'[ऀ-ॿ]', t)) < 200: t = translit(t.replace('-', '').replace('||', '॥').replace('|', '।'))   # GRETIL hyphenates compounds
@@ -68,13 +68,13 @@ def witness_verses(raw:str, translit=None) -> list:
     return out
 
 def letters(s:str) -> str:
-    "`s`'s Devanagari letters alone: its closing `॥ n ॥`, bracketed notes, spaces, daṇḍas and digits gone."
+    "Reduce `s` to its Devanagari letters, removing the closing `॥ n ॥`, bracketed notes, spaces, daṇḍas and digits."
     return re.sub(r'[^ऀ-ॣ]', '', re.sub(r'\([^)]*\)', '', re.sub(r'॥[^॥]*॥', '', s or '')))
 
 def _words(t): return re.findall(r'[ऀ-ॣ]+', t)
 
 def text_changes(chs, wit=(), metre=None, at:float=.7, key=None) -> list:
-    "Dropped pāda-final virāmas, and where the nearest witness verse spells otherwise for a verse `metre` names none for, as changes to accept."
+    "Propose changes for dropped pāda-final virāmas, and for words the nearest witness verse spells differently in verses that `metre` does not find scanning."
     key, wv, out = key or (lambda i, c: i), [(n, t, letters(t)) for n, t in wit], []
     for ci, c in enumerate(chs, 1):
         ch = key(ci, c)
@@ -101,7 +101,7 @@ def text_changes(chs, wit=(), metre=None, at:float=.7, key=None) -> list:
 
 # %% ../nbs/03_editions.ipynb #0e69441a
 def ref_check(chs, ref, probs:list=None, at:float=.8, win:int=6, key=None) -> list:
-    "Problems for a proofreader: verses unlike every reference verse near them by place and number, and lacunae; nothing changed."
+    "List the verses that read unlike every nearby verse of the reference edition, and verses with a lacuna, without changing anything."
     probs, key = [] if probs is None else probs, key or (lambda i, c: i)
     for ci, c in enumerate(chs, 1):
         ch = key(ci, c); rs = ref.get(ch, [])
@@ -114,7 +114,7 @@ def ref_check(chs, ref, probs:list=None, at:float=.8, win:int=6, key=None) -> li
     return probs
 
 def move_lines(chs, ref, probs:list=None, fold=letters, key=None) -> list:
-    "Chapters with leading lines of verse n that close verse n-1 moved back, and leading lines matching no verse dropped, against `ref`."
+    "Move the leading lines of verse n back to verse n-1 when they belong there, or drop them when they match no nearby verse, judged against `ref`."
     probs, key = [] if probs is None else probs, key or (lambda i, c: i)
     sim = lambda ls, r: SequenceMatcher(None, ''.join(fold(l) for l in ls), r).ratio() if ls and r else 0
     for ci, c in enumerate(chs, 1):
@@ -137,12 +137,12 @@ def move_lines(chs, ref, probs:list=None, fold=letters, key=None) -> list:
 # %% ../nbs/03_editions.ipynb #9115ef5d
 _STRICT = re.compile(r'[\s0-9०-९।॥|\-–.,:;ऽ\u200c\u200d()\[\]]')
 def verse_text(page, numbered:bool=False) -> str:
-    "A page's verses as bare letters; `numbered` keeps only those read with a number."
+    "A page's verse text as bare letters; `numbered=True` keeps only the verses read with a number."
     if not page: return ''
     return _STRICT.sub('', ''.join(b.get('text') or '' for b in blocks(page) if kind(b) == 'verse' and not (numbered and b.get('n') is None)))
 
 def lev(a:str, b:str) -> int:
-    "Character edits (Levenshtein) between two strings."
+    "The number of character edits (the Levenshtein distance) between two strings."
     p = list(range(len(b) + 1))
     for i, x in enumerate(a, 1):
         c = [i]
@@ -151,13 +151,13 @@ def lev(a:str, b:str) -> int:
     return p[-1]
 
 def disagree(a, b, numbered:bool=False) -> float|None:
-    "Two readings of a page apart, as edits over the longer's letters: 1 when only one found verses, None when neither did or one is missing."
+    "The share of a page's letters that differ between two readings: 1 when only one found verses, None when neither did or a page is missing."
     if a is None or b is None: return None
     x, y = verse_text(a, numbered), verse_text(b, numbered)
     return lev(x, y) / max(len(x), len(y)) if x or y else None
 
 def compare(readings:dict, pairs, at:float=.1, pages=None, numbered:bool=False) -> tuple:
-    "A markdown table of how far each pair of named readings is apart, page by page, and the pages the first pair flags at `at` or more."
+    "A markdown table of how far each pair of named readings differs, page by page, and the pages where the first pair differs by `at` or more."
     rd = {k: v if isinstance(v, dict) else {p['page']: p for p in v} for k, v in readings.items()}
     names = pages or sorted(set(rd[pairs[0][0]]) & set(rd[pairs[0][1]]))
     rows = [(n, [disagree(rd[a].get(n), rd[b].get(n), numbered) for a, b in pairs]) for n in names]

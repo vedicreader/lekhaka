@@ -66,7 +66,7 @@ kind(dict(kind='head')), len(blocks(uro[0])), vnum(uro[0]['blocks'][1]['n']), vn
 
     ('heading', 8, 205, 27, 26)
 
-[`assemble`](https://vedicreader.github.io/lekhaka/verses.html#assemble) puts the verses into chapters. A heading starts a chapter and a colophon ends it. A block with no number is taken to be the start of the next numbered verse, because a verse that begins at the foot of one page often gets its number only on the next. The sixteen Bṛhajjātaka pages give two chapters, of 8 and 22 verses, with nothing to report:
+[`assemble`](https://vedicreader.github.io/lekhaka/verses.html#assemble) puts the verses into chapters. A colophon closes the current chapter, and a chapter also ends when the numbering drops back to 1. A heading names the chapter it falls in, if that chapter has no name yet; it does not start a chapter by itself. A block with no number is taken to be the start of the next numbered verse, because a verse that begins at the foot of one page often gets its number only on the next. The sixteen Bṛhajjātaka pages give two chapters, of 8 and 22 verses, with nothing to report:
 
 ``` python
 chs, probs = assemble(bj)
@@ -143,7 +143,7 @@ bad_aksharas('ध्ार्म'), fix_aksharas('ध्ार्म'), deva(18)
 
 ## book
 
-[`read_book`](https://vedicreader.github.io/lekhaka/book.html#read_book) does the whole job for a PDF. It reads the pages through vishalakshi and passes them to [`assemble_book`](https://vedicreader.github.io/lekhaka/book.html#assemble_book). That applies your fix rows, gives a verse read without its number the number it ends on (॥ १२ ॥), assembles the chapters, repairs akṣaras, and compares the chapters with `counts`. On request it also joins blocks split by a page break (`cont=True`) and renumbers each chapter (`renumber=True`). [`book_md`](https://vedicreader.github.io/lekhaka/book.html#book_md) writes chapters as markdown:
+[`read_book`](https://vedicreader.github.io/lekhaka/book.html#read_book) does the whole job for a PDF. It reads the pages through vishalakshi and passes them to [`assemble_book`](https://vedicreader.github.io/lekhaka/book.html#assemble_book), which applies your fix rows, gives a verse read without its number the number it ends on (॥ १२ ॥), assembles the chapters, repairs akṣaras, and compares the chapters with `counts`. [`read_book`](https://vedicreader.github.io/lekhaka/book.html#read_book) takes `renumber=True` to renumber each chapter. Joining blocks split by a page break (`cont=True`) is an option of [`assemble_book`](https://vedicreader.github.io/lekhaka/book.html#assemble_book) only, for pages you already have. [`book_md`](https://vedicreader.github.io/lekhaka/book.html#book_md) writes chapters as markdown:
 
 ``` python
 print(book_md(chs[:1], 'बृहज्जातकम्')[:160])

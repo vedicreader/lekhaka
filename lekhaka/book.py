@@ -1,4 +1,4 @@
-"""a book of verses read into chapters, through vishalakshi: every page by a vision model, verses gathered, numbers mended, akṣaras repaired, counts checked
+"""Read a book of verses with a vision model and return its chapters, with numbers mended, akṣaras repaired and verse counts checked
 
 Docs: https://vedicreader.github.io/lekhaka/book.html.md"""
 
@@ -18,8 +18,9 @@ from .repairs import apply_fixes
 _N = re.compile(r'॥\s*([^॥\s][^॥]*?)\s*॥\s*$')
 def assemble_book(pages, script:str='Devanagari', pair:bool=False, kinds=('verse', None), notes=(), number_from_note:bool=False, fixes=None,
                   counts=None, fix:bool=True, cont:bool=False, openers:bool=False, renumber:bool=False) -> AttrDict:
-    """Pages already read, `[{page, blocks}]`, as chapters `[{heading, colophon, verses}]`, the problems a proofreader should see, and the prose
-    `left` out. A verse read without its `n` takes the number it closes on (`॥ १२ ॥`); `renumber` mends each chapter's numbers."""
+    """Assemble pages already read, `[{page, blocks}]`, into chapters `[{heading, colophon, verses}]`, and return them with the problems a
+    proofreader should see and the prose `left` out. A verse read without its `n` takes the number its text ends on (`॥ १२ ॥`), and
+    `renumber=True` corrects each chapter's numbers."""
     ps = [dict(p, blocks=[dict(b, n=m[1]) if kind(b) == 'verse' and b.get('n') is None and (m := _N.search(b.get('text') or '')) and vnum(m[1]) is not None else dict(b)
                           for b in blocks(p) if (b.get('text') or '').strip() or b.get('rows')]) for p in pages]
     probs = []
@@ -37,9 +38,9 @@ def assemble_book(pages, script:str='Devanagari', pair:bool=False, kinds=('verse
 def read_book(path, vault=None, model:str=None, preset:str='sanskrit', title:str='', script:str='Devanagari', hint:str='',
               pages=None, counts=None, fix:bool=True, pair:bool=False, kinds=('verse', None), notes=(), number_from_note:bool=False,
               fixes=None, dpi:int=300, workers:int=4, chat=None, openers:bool=False, renumber:bool=False,
-              **kw   # to `read_doc`: `cache`, `redo`, `clean`, `tries`, `spread`, `strips`, `progress`, `pii`
+              **kw   # passed on to vishalakshi's `read_doc`: `cache`, `redo`, `clean`, `tries`, `spread`, `strips`, `progress`, `pii`
 ) -> AttrDict:
-    "A book's chapters `[{heading, colophon, verses}]`, the problems a proofreader should see, and what reading it cost and left unread."
+    "Read a book with a vision model and return its chapters `[{heading, colophon, verses}]`, the problems a proofreader should see, and what the reading cost and left unread."
     kw = dict(parse='llm', model=model, preset=preset, script=script, hint=hint, pages=pages, dpi=dpi, workers=workers, chat=chat, **kw)
     if vault is not None:
         o = vault.read_doc(path, title=title or None, **kw)
@@ -52,7 +53,7 @@ def read_book(path, vault=None, model:str=None, preset:str='sanskrit', title:str
     return AttrDict(doc_id=did, chapters=b.chapters, probs=b.probs, left=b.left, pages=len(ps), **got)
 
 def book_md(chapters, title:str='') -> str:
-    "Chapters as markdown: a heading per chapter, each verse with its number, the colophon after."
+    "Write chapters as markdown: a heading for each chapter, each verse followed by its number, and the colophon at the end."
     out = [f'# {title}'] if title else []
     for i, c in enumerate(chapters, 1):
         out += ['', f"## {c['heading'] or f'Chapter {i}'}", '']

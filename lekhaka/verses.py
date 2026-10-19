@@ -1,4 +1,4 @@
-"""a printed verse number read, verse runs mended and renumbered, verses assembled into chapters, Devanagari akṣaras repaired
+"""Read printed verse numbers, put verses into chapters, mend their numbering, and repair malformed Devanagari
 
 Docs: https://vedicreader.github.io/lekhaka/verses.html.md"""
 
@@ -17,12 +17,12 @@ from fastcore.all import AttrDict, L
 # %% ../nbs/00_verses.ipynb #c486a4bd
 KINDS = dict(head='heading')
 def kind(b) -> str|None:
-    "A block's kind, an alias in `KINDS` read as the kind it names: `head` is `heading`."
+    "A block's kind, with an alias from `KINDS`, such as `head`, read as the kind it stands for."
     k = b.get('kind'); return KINDS.get(k, k)
 
 def _bk(p): return 'items' if 'items' in p and 'blocks' not in p else 'blocks'
 def blocks(p) -> list:
-    "A page's blocks, kept under `blocks` or, as vedicreader keeps them, `items`."
+    "A page's list of blocks, whether the page keeps them under `blocks` or under `items`."
     if p.get(k := _bk(p)) is None: p[k] = []
     return p[k]
 
@@ -38,7 +38,7 @@ def _tamil(s):
     return tot + (d or 0)
 
 def vnum(n, page=None, probs:list=None, pick:str='last') -> int|None:
-    "A printed verse number as an int, or None when it has no digits; of several printed together, the `last` or the `first`."
+    "A printed verse number as an int, or None when it has no digits; when several are printed together, the last one, or the first with `pick='first'`."
     xs = [_tamil(x) for x in re.findall(r'[\d௰௱௲]+', str('' if n is None else n).translate(_DIG))]
     if len(xs) > 1 and probs is not None: probs.append(f'{page}: verses {"-".join(map(str, xs))} printed as one, numbered {xs[-1 if pick == "last" else 0]}')
     return (xs[-1] if pick == 'last' else xs[0]) if xs else None
@@ -47,7 +47,7 @@ def vnum(n, page=None, probs:list=None, pick:str='last') -> int|None:
 _END = re.compile(r'[.।॥|]\s*$')
 def _ln(vs): return next((v['n'] for v in reversed(vs) if v['n'] is not None), None)
 def mend(vs, probs:list, pair:bool=False) -> list:
-    "Verses with a doubled number and two verses read as one put right, where their neighbours prove it."
+    "Correct a verse number read twice and split two verses read as one block, where the numbers around them show what is right."
     out = []
     for i, v in enumerate(vs):
         if v['n'] is None: out.append(v); continue
@@ -65,7 +65,7 @@ def mend(vs, probs:list, pair:bool=False) -> list:
     return out
 
 def renumber(vs, where, probs:list) -> list:
-    "Verse numbers a long chapter's print makes hard to read, put right from their neighbours; an unnumbered verse stays where it is."
+    "Correct misread verse numbers in a chapter from the numbers around them, leaving unnumbered verses where they are."
     ix, out = [i for i, v in enumerate(vs) if v['n'] is not None], [dict(v) for v in vs]
     for i, v in zip(ix, _renum([vs[i] for i in ix], where, probs)): out[i] = v
     return out
@@ -91,7 +91,7 @@ def _renum(vs, where, probs):
 
 # %% ../nbs/00_verses.ipynb #94f2a1fd
 def join_cont(pages) -> list:
-    "Pages with a block a page break cut (`cont` on the next page's first block) joined to its start, a word hyphenated at the break rejoined."
+    "Join each block marked `cont` at the top of a page to the block it continues on the page before, rejoining a word hyphenated at the break."
     last = None
     for p in pages:
         bl = blocks(p)
@@ -115,10 +115,10 @@ def _take(n, t, pg, buf, have, probs):
     return v
 
 def assemble(pages, pair:bool=False, kinds=('verse', None), notes=(), number_from_note:bool=False, cont:bool=False, openers:bool=False) -> tuple:
-    """Chapters `[{heading, colophon, verses}]` from pages of blocks, and the problems seen. `kinds` None takes every block but headings and
-    colophons as verse. A block of a kind in `notes` (`urai`, `gloss`, `bhashya`) goes into its verse's `notes`; with `number_from_note`, a
-    numbered note gives the unnumbered verse before it that number. `cont` joins a block cut by a page break first (`join_cont`). With
-    `openers`, an unnumbered block closed by ॥ (a maṅgala) is a verse of its own, `n` None, in the chapter of the verse after it."""
+    """Build chapters `[{heading, colophon, verses}]` from pages of blocks, and return them with the problems found. `kinds` names the
+    block kinds that count as verse, and None means every kind except headings and colophons. A block whose kind is in `notes` is kept in
+    the `notes` of its verse, and `number_from_note=True` numbers a verse from its commentary. `cont=True` first joins blocks cut by a page
+    break, and `openers=True` keeps an unnumbered block ending in ॥ as a verse of its own with `n` None."""
     if cont: pages = join_cont(deepcopy(list(pages)))
     chs, cur, buf, probs, hd, pend, opn = [], None, [], [], None, {}, []
     new = lambda h=None: dict(heading=h, colophon=None, verses=[])
@@ -171,7 +171,7 @@ def assemble(pages, pair:bool=False, kinds=('verse', None), notes=(), number_fro
     return chs, probs
 
 def check_counts(chs, counts) -> list:
-    "Where the chapters' verse counts differ from the counts a plan expects."
+    "List the chapters whose number of verses differs from the expected count, and a difference in the number of chapters."
     out = [] if len(chs) == len(counts) else [f'{len(chs)} chapters, the plan has {len(counts)}']
     return out + [f"chapter {i + 1}: {len(c['verses'])} verses, the plan has {k}" for i, (c, k) in enumerate(zip(chs, counts)) if len(c['verses']) != k]
 
@@ -194,7 +194,7 @@ def _cname(t, anchor, adh):
 
 def assemble_colophon(pages, pair:bool=False, kinds=None, parts=(('पूर्व', None), ('उत्तर', _UTT)), adh:str=r'ध्याय', tika:str=r'टीका|व्याख्या',
                       skip:str=_SKIP, resume:str=r'ग्रंथारंभ|ग्रन्थारम्भ|ध्याय', contents:str=r'नुक्रमणिका', anchor:str=_ANCHOR) -> tuple:
-    "Chapters `[{part, no, name, heading, colophon, verses}]` cut at the colophons that number them, and the problems seen."
+    "Cut pages into chapters `[{part, no, name, heading, colophon, verses}]` at the colophons that number them, and return them with the problems found."
     chs, cur, buf, probs, hd, kh, skipping, ath = [], [], [], [], None, parts[0][0], False, None
     part = lambda t, kh: next((nm for nm, r in parts[1:] if re.search(r, t)), kh)
     def close(no, t, pg):
@@ -248,11 +248,11 @@ AKSHARA_BAD = {'virāma before a vowel sign': re.compile('्[ा-ौॢॣ]'),
                'vowel sign after a vowel letter': re.compile('[ऄ-औ][ा-ौ]')}
 
 def bad_aksharas(t:str) -> list:
-    "The names of the malformed akṣaras in `t`."
+    "The names, from `AKSHARA_BAD`, of the malformed akṣaras found in `t`."
     return [k for k, r in AKSHARA_BAD.items() if r.search(t or '')]
 
 def fix_aksharas(t:str) -> str:
-    "`t`'s Devanagari with its mechanical slips mended."
+    "Return the Devanagari text `t` with the malformed akṣaras whose right form is certain repaired."
     if not t: return t
     t = re.sub(f'्ि((?:{_C}्)*{_C})', lambda m: '्' + m[1] + 'ि', t)
     t = re.sub('ट्ः([अआइईउऊएऐओऔ])', lambda m: 'ठ' + _SIGN[m[1]], t)
@@ -267,16 +267,16 @@ def fix_aksharas(t:str) -> str:
 # %% ../nbs/00_verses.ipynb #7821db49
 _DEVA = str.maketrans('0123456789', '०१२३४५६७८९')
 def deva(n) -> str:
-    "A number in Devanagari digits: 18 is १८."
+    "Write a number in Devanagari digits: 18 becomes १८."
     return str(n).translate(_DEVA)
 
 def norm(t:str) -> str:
-    "Typing slips mended: a colon typed for a visarga, ASCII digits in a `॥ n ॥`, a space before a daṇḍa."
+    "Fix typing slips in `t`: a colon typed for a visarga, ASCII digits inside `॥ n ॥`, and spaces before a daṇḍa."
     t = re.sub(r'(?<=[ऀ-ॿ]):', 'ः', t)
     t = re.sub(r'॥\s*([0-9]+)\s*॥', lambda m: f'॥ {deva(m[1])} ॥', t)
     return re.sub(r'[ \t]+([।॥])', r'\1', t).strip()
 
 _VIR = re.compile(r'(?<=[क-ह])(?:(?<=[ाेृवय]त)|(?<=[ाि]न)|(?<=जगत)|(?<=^सत)|(?<= सत))(?=\s*(?:।|$))')
 def virama(l:str) -> str:
-    "A line with the pāda-final virāma a typist drops put back: -वत्, -यत्, -तात्, -ान्, -िन्, जगत्, सत् before a daṇḍa or the line's end."
+    "Restore the virāma a typist drops at the end of a pāda, for the endings -ात्, -ेत्, -ृत्, -वत्, -यत्, -ान्, -िन् and the words जगत्, सत्, before । or the end of the line."
     return _VIR.sub('्', l)

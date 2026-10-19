@@ -1,4 +1,4 @@
-"""what a reading gets wrong, put right: a table of fixes before assembly and one after, unnumbered runs, numbers borrowed from a second reading, chapters cut by a plan, pages that are not the text, sūtras
+"""Apply corrections a person makes from the scan, number verses the model left unnumbered, mark chapter breaks, drop pages that are not the text, and tidy sūtras
 
 Docs: https://vedicreader.github.io/lekhaka/repairs.html.md"""
 
@@ -14,7 +14,7 @@ from .verses import vnum, blocks, kind, _bk
 
 # %% ../nbs/02_repairs.ipynb #c1e7efc1
 def apply_fixes(pages, rows, witness:dict=None, probs:list=None) -> list:
-    "Pages with a table of fixes applied: `(page, item, kind, read, printed, why)` rows."
+    "Apply a table of fix rows `(page, item, kind, read, printed, why)` to pages of blocks, recording each change in `probs`."
     probs = [] if probs is None else probs
     by, adds = {p['page']: p for p in pages}, []
     for pg, i, kind, a, b, why in rows:
@@ -41,7 +41,7 @@ def apply_fixes(pages, rows, witness:dict=None, probs:list=None) -> list:
 
 # %% ../nbs/02_repairs.ipynb #edd0402e
 def number_runs(pages, probs:list=None, reset:str=r'ध्याय') -> list:
-    "Unnumbered verses numbered where they fit exactly between two numbered ones."
+    "Number each run of unnumbered verses that exactly fills the gap between two numbered ones."
     probs = [] if probs is None else probs
     a, run = 0, []
     for p in pages:
@@ -56,7 +56,7 @@ def number_runs(pages, probs:list=None, reset:str=r'ध्याय') -> list:
     return pages
 
 def borrow_numbers(pages, other, probs:list=None, at:float=.6) -> list:
-    "Unnumbered verses given the number `other`, a second reading of the same pages as pages, prints on the most similar verse."
+    "Give each unnumbered verse the number of the most similar verse on the same page of `other`, a second reading of the same pages."
     probs = [] if probs is None else probs
     theirs = {p['page']: [(n, b.get('text') or '') for b in blocks(p) if kind(b) == 'verse' and (n := vnum(b.get('n'))) is not None] for p in other}
     for p in pages:
@@ -70,7 +70,7 @@ def borrow_numbers(pages, other, probs:list=None, at:float=.6) -> list:
 
 # %% ../nbs/02_repairs.ipynb #335f9f19
 def cut_by_plan(pages, plan, probs:list=None) -> list:
-    "Pages with a chapter-opening `start` block at each `(page, item, why)` of `plan`, each cut noted; `item` is an index or a heading's first words."
+    "Insert a chapter-opening `start` block at each `(page, item, why)` row of `plan`, where `item` is a block's position or the first words of its text."
     probs = [] if probs is None else probs
     by = {p['page']: p for p in pages}
     for pg, item, *why in plan:
@@ -85,7 +85,7 @@ def cut_by_plan(pages, plan, probs:list=None) -> list:
 
 # %% ../nbs/02_repairs.ipynb #6b218eb7
 def drop_pages(pages, ranges, probs:list=None) -> list:
-    "Pages with the verses dropped on each `(first, last)` range of pages that are not the text."
+    "Remove the verse blocks on every page in each `(first, last)` range, for pages that are not part of the text."
     probs = [] if probs is None else probs
     for a, b in ranges:
         for p in pages:
@@ -98,7 +98,7 @@ _KINDS = ('fix', 'fix_all', 'slip', 'doubt', 'note', 'number', 'drop', 'missing'
 def _at(vs, n): return next((i for i, v in enumerate(vs) if v['n'] == n), None)
 
 def fix_chapters(chs, rows, probs:list=None, key=None) -> list:
-    "Chapters with a table of fixes applied: `(chapter, verse, kind, read, printed, why)` rows; `chapter` None is every chapter with the verse."
+    "Apply a table of fix rows `(chapter, verse, kind, read, printed, why)` to assembled chapters; a `chapter` of None means every chapter with that verse."
     probs, key = [] if probs is None else probs, key or (lambda i, c: i)
     for ch, n, k, a, b, why in rows:
         if k not in _KINDS: raise ValueError(f'{k}: not a kind of fix')
@@ -141,7 +141,7 @@ def fix_chapters(chs, rows, probs:list=None, key=None) -> list:
     return chs
 
 def sutras(chs, probs:list=None, close:str='॥', key=None) -> list:
-    "Chapters of sūtras, each one line: wrapped lines joined, a hyphen at a break dropped, closed by `close` where the reading lost it."
+    "Put each sūtra on one line, rejoining words hyphenated at a line break, and end it with `close` where the reading lost it."
     probs, key = [] if probs is None else probs, key or (lambda i, c: i)
     for i, c in enumerate(chs, 1):
         out = []
