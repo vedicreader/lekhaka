@@ -27,9 +27,10 @@ def apply_fixes(pages, rows, witness:dict=None, probs:list=None) -> list:
         if kind == 'number': it['n'] = b; probs.append(f'{pg}: verse number read {a}, printed {b}'); continue
         if a not in (it.get('text') or ''): probs.append(f'{pg}: `{a}` not in block {i}; the {kind} to `{b}` not applied'); continue
         w = (witness or {}).get((pg, i, a))
-        if kind == 'fix' or (kind == 'doubt' and w == 'agrees'):
-            it['text'] = it['text'].replace(a, b, 1)
-            probs.append(f'{pg}: read `{a}`, printed `{b}`' + (f' ({why})' if why else '') + (' [a doubt the witness settles]' if kind == 'doubt' else ''))
+        if kind in ('fix', 'fix_all') or (kind == 'doubt' and w == 'agrees'):
+            m = it['text'].count(a) if kind == 'fix_all' else 1
+            it['text'] = it['text'].replace(a, b, m)
+            probs.append(f'{pg}: read `{a}`, printed `{b}`' + (f', {m} times' if m > 1 else '') + (f' ({why})' if why else '') + (' [a doubt the witness settles]' if kind == 'doubt' else ''))
         elif kind == 'doubt': probs.append(f'{pg}: doubt: `{a}` kept; perhaps `{b}` ({why})')
         elif kind == 'slip': probs.append(f"{pg}: the print's slip, kept: `{a}` ({why})")
     for _, (pg, after, blk, why) in sorted(enumerate(adds), key=lambda x: (-(x[1][1] if isinstance(x[1][1], int) else 999), -x[0])):
@@ -69,15 +70,17 @@ def borrow_numbers(pages, other, probs:list=None, at:float=.6) -> list:
 
 # %% ../nbs/02_repairs.ipynb #335f9f19
 def cut_by_plan(pages, plan, probs:list=None) -> list:
-    "Pages with a chapter-opening heading at each `(page, item)` of `plan`; `item` is an index or a heading's first words."
+    "Pages with a chapter-opening `start` block at each `(page, item, why)` of `plan`, each cut noted; `item` is an index or a heading's first words."
     probs = [] if probs is None else probs
     by = {p['page']: p for p in pages}
-    for pg, item in plan:
+    for pg, item, *why in plan:
         if (p := by.get(pg)) is None: probs.append(f'{pg}: the plan names a page the reading lacks'); continue
         bl = blocks(p)
         i = item if isinstance(item, int) else next((j for j, b in enumerate(bl) if (b.get('text') or '').startswith(item)), None)
         if i is None or not 0 <= i < len(bl): probs.append(f'{pg}: the plan\'s chapter start {item!r} is not on the page'); continue
-        bl.insert(i, dict(kind='start'))
+        b, y = bl[i], f' ({why[0]})' if why and why[0] else ''
+        w = f'verse {m}' if kind(b) == 'verse' and (m := vnum(b.get('n'))) is not None else f"`{(b.get('text') or '')[:30]}`"
+        bl.insert(i, dict(kind='start')); probs.append(f'{pg}: a chapter starts at {w}, by the plan{y}')
     return pages
 
 # %% ../nbs/02_repairs.ipynb #6b218eb7
@@ -91,7 +94,7 @@ def drop_pages(pages, ranges, probs:list=None) -> list:
     return pages
 
 # %% ../nbs/02_repairs.ipynb #cd554cda
-_KINDS = ('fix', 'slip', 'doubt', 'note', 'number', 'drop', 'missing', 'recut', 'start')
+_KINDS = ('fix', 'fix_all', 'slip', 'doubt', 'note', 'number', 'drop', 'missing', 'recut', 'start')
 def _at(vs, n): return next((i for i, v in enumerate(vs) if v['n'] == n), None)
 
 def fix_chapters(chs, rows, probs:list=None, key=None) -> list:
@@ -110,9 +113,11 @@ def fix_chapters(chs, rows, probs:list=None, key=None) -> list:
             vs.insert(next((i for i, x in enumerate(vs) if x['n'] > n), len(vs)), dict(v, added=True))
             probs.append(f"{w}: verse {n} missing from the reading, put in: {v['text'][:40]}{y}"); continue
         if k == 'start':
-            c = next((c for c in cs if _at(c['verses'], n)), None)
-            if c is None: probs.append(f'{w}: no verse {n} after the first of a chapter; the start not applied'); continue
-            i, vs, j = _at(c['verses'], n), c['verses'], next(j for j, x in enumerate(chs) if x is c)
+            hs = [(c, i) for c in cs for i, v in enumerate(c['verses']) if v['n'] == n and (not isinstance(b, str) or v['page'] == b)]
+            hs = hs if isinstance(b, str) else hs[b - 1:b] if isinstance(b, int) else [(c, _at(c['verses'], n)) for c in cs]
+            c, i = next(((c, i) for c, i in hs if i), (None, None))
+            if c is None: probs.append(f'{w}: no verse {n} after the first of a chapter' + ('' if b is None else f' ({b})') + '; the start not applied'); continue
+            vs, j = c['verses'], next(j for j, x in enumerate(chs) if x is c)
             chs[j:j + 1] = [dict(c, verses=vs[:i], colophon=None), dict(c, heading=None, verses=vs[i:])]
             probs.append(f"{vs[i]['page']}: a chapter starts at verse {w}{y}"); continue
         if k == 'recut':
@@ -130,7 +135,9 @@ def fix_chapters(chs, rows, probs:list=None, key=None) -> list:
             elif k == 'slip': probs.append(f"{pg}: the print's slip, kept: `{a}`{y}")
             elif k == 'doubt': probs.append(f'{pg}: doubt: `{a}` kept; perhaps `{b}`{y}')
             elif a not in v['text']: probs.append(f'{pg}: `{a}` not in the verse; the fix to `{b}` not applied')
-            else: c['verses'][i] = dict(v, text=v['text'].replace(a, b, 1)); probs.append(f'{pg}: read `{a}`, printed `{b}`{y}')
+            else:
+                m = v['text'].count(a) if k == 'fix_all' else 1
+                c['verses'][i] = dict(v, text=v['text'].replace(a, b, m)); probs.append(f'{pg}: read `{a}`, printed `{b}`' + (f', {m} times' if m > 1 else '') + y)
     return chs
 
 def sutras(chs, probs:list=None, close:str='॥', key=None) -> list:

@@ -2,6 +2,12 @@
 
 <!-- do not remove -->
 
+## 0.0.6
+- `fix_chapters`: a `start` row's `printed` picks between two verses of one number in a chapter, by the page it is on (`'p0108a'`) or which one it is (2 is the second); a `fix_all` row replaces every occurrence. `apply_fixes` takes `fix_all` too.
+- `assemble(openers=True)`: an unnumbered block closed by ॥ (a maṅgala) stays a verse of its own, `n` None, in the chapter of the verse after it; `mend` and `renumber` leave it where it is.
+- `cut_by_plan` notes each cut in `probs`; a plan row's third value is why.
+- The index shows every public function, run on the three sample books.
+
 ## 0.0.5
 - Pages may keep their blocks under `items`; a reader's `head` is a `heading` (`KINDS`, `kind`, `blocks`). Every function that reads pages takes both.
 - `join_cont` and `assemble(cont=)`: a block a page break cut rejoined, a hyphenated word mended.

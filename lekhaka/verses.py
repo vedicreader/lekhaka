@@ -45,11 +45,13 @@ def vnum(n, page=None, probs:list=None, pick:str='last') -> int|None:
 
 # %% ../nbs/00_verses.ipynb #370f2946
 _END = re.compile(r'[.।॥|]\s*$')
+def _ln(vs): return next((v['n'] for v in reversed(vs) if v['n'] is not None), None)
 def mend(vs, probs:list, pair:bool=False) -> list:
     "Verses with a doubled number and two verses read as one put right, where their neighbours prove it."
     out = []
     for i, v in enumerate(vs):
-        n, prev = v['n'], (out[-1]['n'] if out else 0)
+        if v['n'] is None: out.append(v); continue
+        n, prev = v['n'], _ln(out) or 0
         nxt = vs[i + 1]['n'] if i + 1 < len(vs) else None
         if n == nxt and prev == n - 2:
             out.append(dict(v, n=n - 1)); probs.append(f"{v['page']}: first of two {n}s taken as {n - 1}"); continue
@@ -63,7 +65,12 @@ def mend(vs, probs:list, pair:bool=False) -> list:
     return out
 
 def renumber(vs, where, probs:list) -> list:
-    "Verse numbers a long chapter's print makes hard to read, put right from their neighbours."
+    "Verse numbers a long chapter's print makes hard to read, put right from their neighbours; an unnumbered verse stays where it is."
+    ix, out = [i for i, v in enumerate(vs) if v['n'] is not None], [dict(v) for v in vs]
+    for i, v in zip(ix, _renum([vs[i] for i in ix], where, probs)): out[i] = v
+    return out
+
+def _renum(vs, where, probs):
     vs = [dict(v) for v in vs]
     for i in range(1, len(vs)):
         want = vs[i - 1]['n'] + 1; d = vs[i]['n'] - want
@@ -107,12 +114,13 @@ def _take(n, t, pg, buf, have, probs):
     v = dict(n=n, text='\n'.join(buf + [t]), page=pg); buf.clear()
     return v
 
-def assemble(pages, pair:bool=False, kinds=('verse', None), notes=(), number_from_note:bool=False, cont:bool=False) -> tuple:
+def assemble(pages, pair:bool=False, kinds=('verse', None), notes=(), number_from_note:bool=False, cont:bool=False, openers:bool=False) -> tuple:
     """Chapters `[{heading, colophon, verses}]` from pages of blocks, and the problems seen. `kinds` None takes every block but headings and
     colophons as verse. A block of a kind in `notes` (`urai`, `gloss`, `bhashya`) goes into its verse's `notes`; with `number_from_note`, a
-    numbered note gives the unnumbered verse before it that number. `cont` joins a block cut by a page break first (`join_cont`)."""
+    numbered note gives the unnumbered verse before it that number. `cont` joins a block cut by a page break first (`join_cont`). With
+    `openers`, an unnumbered block closed by ॥ (a maṅgala) is a verse of its own, `n` None, in the chapter of the verse after it."""
     if cont: pages = join_cont(deepcopy(list(pages)))
-    chs, cur, buf, probs, hd, pend = [], None, [], [], None, {}
+    chs, cur, buf, probs, hd, pend, opn = [], None, [], [], None, {}, []
     new = lambda h=None: dict(heading=h, colophon=None, verses=[])
     def add(n, text, pg):
         nonlocal cur, hd, pend
@@ -122,7 +130,7 @@ def assemble(pages, pair:bool=False, kinds=('verse', None), notes=(), number_fro
         if cur['verses'] and n != cur['verses'][-1]['n'] + 1: probs.append(f"{pg}: verse {n} after {cur['verses'][-1]['n']}")
         v = dict(n=n, text=text, page=pg, heading=hd)
         if pend: v['notes'], pend = pend, {}
-        cur['verses'].append(v); hd = None
+        cur['verses'] += opn + [v]; opn.clear(); hd = None
         return v
     for p in pages:
         for b in p.get(_bk(p)) or []:
@@ -131,7 +139,7 @@ def assemble(pages, pair:bool=False, kinds=('verse', None), notes=(), number_fro
                 m = vnum(n, pg, probs) if n is not None else None
                 if number_from_note and buf and m is not None:
                     add(m, '\n'.join(buf), pg); buf = []; probs.append(f'{pg}: verse numbered {m} from its {k}')
-                last = cur['verses'][-1] if cur and cur['verses'] and not buf else None
+                last = None if buf else opn[-1] if opn else cur['verses'][-1] if cur and cur['verses'] else None
                 (last.setdefault('notes', {}) if last else pend).setdefault(k, []).append(t)
                 continue
             if k == 'start':   # a chapter opens here: `repairs.cut_by_plan`
@@ -147,12 +155,16 @@ def assemble(pages, pair:bool=False, kinds=('verse', None), notes=(), number_fro
                     n = cur['verses'][-1]['n'] + 1
                     cur['verses'].append(dict(n=n, text='\n'.join(buf), page=pg, heading=None)); buf = []
                     probs.append(f'{pg}: unnumbered verse before the colophon taken as {n}')
+                if opn: cur = cur or new(); cur['verses'] += opn; opn.clear()
                 (cur or new())['colophon'] = t
                 if cur: chs.append(cur); cur = None
                 continue
             if kinds is not None and k not in kinds: continue
+            if openers and vnum(n) is None and t.rstrip().endswith('॥'):
+                opn.append(dict(n=None, text='\n'.join(buf + [t]), page=pg, heading=hd)); buf.clear(); hd = None; continue
             if (v := _take(n, t, pg, buf, cur['verses'] if cur else [], probs)) is False: hd = None
             elif v: add(v['n'], v['text'], pg)
+    if opn: cur = cur or new(); cur['verses'] += opn
     if cur and cur['verses']: chs.append(cur)
     if buf: probs.append(f'unfinished verse at the end: {buf[-1][:40]}')
     for c in chs: c['verses'] = mend(c['verses'], probs, pair)

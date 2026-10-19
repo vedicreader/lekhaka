@@ -26,29 +26,86 @@ print(book_md(b.chapters, 'Bhagavad Gita'))
 
 With a vault the pages are kept as versions of one document: `vault.proofread(b.doc_id, readers)` has other models read them again, and `vault.accept` applies the changes the owner chooses. Without a vault nothing is stored.
 
-The pieces work on their own, on the pages `vishalakshi.read_doc` returns or any `{page, blocks}` list:
+The pieces work on their own, on the pages `vishalakshi.read_doc` returns or any `{page, blocks}` list. Each section below names a module’s public functions, run on real pages.
 
-## On real books
+## The samples
 
-`nbs/samples` holds a few pages each of three books vedicreader has read, as a model returned them. Sixteen pages of Varāhamihira’s Bṛhajjātaka assemble into its third and fourth chapters, each opened by its heading and closed by its colophon:
+`nbs/samples` holds pages of three books vedicreader has read, as a model returned them: sixteen pages of Varāhamihira’s Bṛhajjātaka (its third and fourth chapters), six of the Tamil Vidhānamālai with its urai, and four of Uromarishi’s Pañcapakṣi (1917).
 
 ``` python
 import json
-bj = json.load(open('samples/brihat_jataka.json'))
-chs, probs = assemble(bj)
-[(c['heading'], len(c['verses']), (c['colophon'] or '')[:40]) for c in chs]
+from copy import deepcopy
+bj, vm, uro = [json.load(open(f'samples/{k}.json')) for k in ('brihat_jataka', 'vidhanamalai', 'uromarishi')]
+len(bj), len(vm), len(uro)
 ```
 
-    [('वियोनिजन्माध्यायः', 8, 'इति श्रीवराहमिहिरकृते बृहज्जातके वियोनिज'),
-     ('निषेकाध्यायः', 22, 'इति श्रीवराहमिहिरकृते बृहज्जातके निषेकाध')]
+    (16, 6, 4)
+
+## verses
+
+`blocks` reads a page’s blocks under `blocks` or `items`; `kind` reads a block’s kind, an alias in `KINDS` as the kind it names. [`vnum`](https://vedicreader.github.io/lekhaka/verses.html#vnum) reads a printed number in any digits, the old Tamil signs too.
 
 ``` python
-probs
+kind(dict(kind='head')), len(blocks(uro[0])), vnum(uro[0]['blocks'][1]['n']), vnum('२६॥२७'), vnum('२६॥ १', pick='first')
 ```
 
-    []
+    ('heading', 8, 205, 27, 26)
 
-Its colophons number the chapters, so `assemble_colophon` can cut there instead, reading each chapter’s number and name from its colophon; `cut` lays the chapters into titles and `numbering` reports a run’s numbers:
+[`assemble`](https://vedicreader.github.io/lekhaka/verses.html#assemble) gathers verses into chapters: a heading opens one, a colophon closes it, an unnumbered fragment joins the next numbered verse.
+
+``` python
+chs, probs = assemble(bj)
+[(c['heading'], len(c['verses']), c['colophon'][:30]) for c in chs], probs
+```
+
+    ([('वियोनिजन्माध्यायः', 8, 'इति श्रीवराहमिहिरकृते बृहज्जात'),
+      ('निषेकाध्यायः', 22, 'इति श्रीवराहमिहिरकृते बृहज्जात')],
+     [])
+
+With `openers`, an unnumbered block closed by ॥ stays a verse of its own, `n` None. On p0025a the reading holds an āryā the commentary quotes; by default it joins verse 4:
+
+``` python
+op, _ = assemble(bj, openers=True)
+[(v['n'], v['page'], v['text'][:25]) for v in op[1]['verses'][2:5]], len(chs[1]['verses'][3]['text'].split('\n'))
+```
+
+    ([(3, 'p0025a', 'रवीन्दुशुक्रावनिजैः स्वभा'),
+      (None, 'p0025a', 'बलयुतौ स्वगृहांशेष्वर्कसि'),
+      (4, 'p0025a', 'दिवाकरेन्द्वोः स्मरगौ कुज')],
+     4)
+
+`notes` puts a commentary into its verse, and `number_from_note` takes the verse’s number from it (the Vidhānamālai numbers its urai). `cont` first joins a block a page break cut (`join_cont`).
+
+``` python
+vc, _ = assemble(vm, notes=('urai',), number_from_note=True)
+v = vc[0]['verses'][0]
+len(vc[0]['verses']), v['n'], v['notes']['urai'][0][:40]
+```
+
+    (11, 1, '(என்றது.) ஸ்ரீமகாலக்ஷ்மிக்கு நாயகரும், ப')
+
+``` python
+join_cont([dict(page=1, blocks=[dict(kind='prose', text='a com-')]), dict(page=2, blocks=[dict(kind='prose', text='mentary', cont=True)])])[0]['blocks'][0]['text']
+```
+
+    'a commentary'
+
+[`mend`](https://vedicreader.github.io/lekhaka/verses.html#mend) puts right a doubled number and two verses read as one; [`renumber`](https://vedicreader.github.io/lekhaka/verses.html#renumber) puts right a run of misread numbers; [`check_counts`](https://vedicreader.github.io/lekhaka/verses.html#check_counts) compares chapters with a plan.
+
+``` python
+V = lambda n: dict(n=n, text='a ।\nb ॥', page='p1')
+p = []; [v['n'] for v in mend([V(7), V(9), V(9), V(10)], p)], p
+```
+
+    ([7, 8, 9, 10], ['p1: first of two 9s taken as 8'])
+
+``` python
+[v['n'] for v in renumber([V(n) for n in (52, 63, 64, 65, 56)], 'ch 3', [])], check_counts(chs, [8, 21])
+```
+
+    ([52, 53, 54, 55, 56], ['chapter 2: 22 verses, the plan has 21'])
+
+`assemble_colophon` cuts at the colophons that number the chapters, reading each chapter’s number and name there.
 
 ``` python
 cc, _ = assemble_colophon(bj)
@@ -57,51 +114,157 @@ cc, _ = assemble_colophon(bj)
 
     [('पूर्व', 3, 'वियोनिजन्म', 8), ('पूर्व', 4, 'निषेक', 22)]
 
+[`bad_aksharas`](https://vedicreader.github.io/lekhaka/verses.html#bad_aksharas) names malformed akṣaras (the patterns in `AKSHARA_BAD`) and [`fix_aksharas`](https://vedicreader.github.io/lekhaka/verses.html#fix_aksharas) mends them. `deva` writes Devanagari digits, `norm` mends typing slips, `virama` puts back a dropped pāda-final virāma.
+
 ``` python
-[t['title'] for t in cut(cc, 'chapters', book='बृहज्जातकम्')], numbering(cc[1]['verses'])
+bad_aksharas('ध्ार्म'), fix_aksharas('ध्ार्म'), deva(18), norm('राम: ॥ 1 ॥'), virama('जगत ।')
+```
+
+    (['virāma before a vowel sign'], 'धार्म', '१८', 'रामः॥ १॥', 'जगत् ।')
+
+## book
+
+[`read_book`](https://vedicreader.github.io/lekhaka/book.html#read_book) reads a PDF end to end through vishalakshi (see How to use). [`book_md`](https://vedicreader.github.io/lekhaka/book.html#book_md) writes chapters as markdown:
+
+``` python
+print(book_md(chs[:1], 'बृहज्जातकम्')[:160])
+```
+
+    # बृहज्जातकम्
+
+    ## वियोनिजन्माध्यायः
+
+    क्रूरग्रहैस्तु बलिभिर्विंबलैश्च सौम्यैः क्लीबे चतुष्टयगतेतद्वेक्षणाद्वा।
+    चन्द्रोपगद्विरसभागसमानरूपं सत्त्वं वदेद्यदि भवेत्स
+
+## repairs
+
+Before [`assemble`](https://vedicreader.github.io/lekhaka/verses.html#assemble), on pages: `apply_fixes` applies rows `(page, item, kind, read, printed, why)`; `fix` replaces once and `fix_all` every time. Each repair notes what it did in `probs`.
+
+``` python
+apply_fixes(deepcopy(bj), [('p0022b', 2, 'fix', 'शेभनाः', 'शोभनाः', 'a typo')], probs=(p := [])); p
+```
+
+    ['p0022b: read `शेभनाः`, printed `शोभनाः` (a typo)']
+
+`number_runs` numbers an unnumbered run that fits between two numbers; `borrow_numbers` takes a lost number from a second reading.
+
+``` python
+number_runs([dict(page='p1', blocks=[dict(kind='verse', n=1, text='a'), dict(kind='verse', text='b'), dict(kind='verse', n=3, text='c')])], p := [])
+mine = deepcopy(bj[:1]); mine[0]['blocks'][2]['n'] = None
+borrow_numbers(mine, bj, p); p
+```
+
+    ['p1: verse printed without its number taken as 2, between 1 and 3',
+     "p0022b: verse 2's number, lost in this reading, taken from the other (1.00)"]
+
+`cut_by_plan` opens a chapter at each `(page, item, why)`, an index or a heading’s first words; `drop_pages` drops the verses on pages that are not the text.
+
+``` python
+cut_by_plan(deepcopy(vm), [('p0020a', 'பதிகம்.', 'the contents open a chapter')], p := [])
+drop_pages(deepcopy(bj), [('p0029b', 'p0030a')], p); p
+```
+
+    ['p0020a: a chapter starts at `பதிகம்.`, by the plan (the contents open a chapter)',
+     'p0029b: verses dropped, not the text',
+     'p0030a: verses dropped, not the text']
+
+After [`assemble`](https://vedicreader.github.io/lekhaka/verses.html#assemble), on chapters: `fix_chapters` applies rows `(chapter, verse, kind, read, printed, why)`. A `start` row opens a chapter at a verse; where one chapter holds two verses of that number, `printed` picks one by its page or by which one it is.
+
+``` python
+rows = [(1, 2, 'fix', 'शेभनाः', 'शोभनाः', 'a typo'), (2, 19, 'fix_all', '।।', '॥', 'doubled daṇḍas'), (2, 15, 'note', None, None, 'its first two lines are a quotation')]
+fix_chapters(deepcopy(chs), rows, p := []); p
+```
+
+    ['1.2 (p0022b): read `शेभनाः`, printed `शोभनाः` (a typo)',
+     '2.19 (p0029a): read `।।`, printed `॥`, 2 times (doubled daṇḍas)',
+     '2.15: its first two lines are a quotation']
+
+``` python
+one = [dict(heading=None, colophon=None, verses=chs[0]['verses'] + chs[1]['verses'])]
+p = []; [len(c['verses']) for c in fix_chapters(one, [(1, 1, 'start', None, 'p0024b', 'by hand')], p)], p
+```
+
+    ([8, 22], ['p0024b: a chapter starts at verse 1.1 (by hand)'])
+
+`sutras` makes each sūtra one line, closed by ॥.
+
+``` python
+sutras([dict(verses=[dict(n=1, text='अथातो धर्म-\nजिज्ञासा ।', page='p1')])], p := [])[0]['verses'][0]['text'], p
+```
+
+    ('अथातो धर्मजिज्ञासा ॥', ['1.1 (p1): closing ॥ supplied'])
+
+## editions
+
+`cut` lays chapters into titles: a title a chapter, `per` verses a title, or `one`. An unnumbered verse is lettered from `LETTERS` and given `open_word`. `numbering` reports a run’s numbers.
+
+``` python
+[t['title'] for t in cut(cc, 'chapters', book='बृहज्जातकम्')], [(v['n'], v.get('word')) for v in cut(op, 'chapters')[1]['verses'][2:5]]
 ```
 
     (['बृहज्जातकम् १ वियोनिजन्म', 'बृहज्जातकम् २ निषेक'],
-     {'numbered': 22,
-      'unnumbered': 0,
-      'skipped': [],
-      'repeated': [],
-      'first': 1,
-      'last': 22})
-
-The Vidhānamālai prints each verse’s number at the end of its urai, the prose gloss after it. The urai goes into its verse’s notes, and gives the verse its number:
+     [(3, None), ('क', 'मङ्गलम्'), (4, None)])
 
 ``` python
-vm = json.load(open('samples/vidhanamalai.json'))
-chs, probs = assemble(vm, notes=('urai',), number_from_note=True)
-v = chs[0]['verses'][0]
-len(chs[0]['verses']), v['n'], v['text'].split('\n')[0], v['notes']['urai'][0][:60]
+numbering(op[1]['verses'])
 ```
 
-    (11,
-     1,
-     'பூமகள் கேள்வன்பொன் னுடையன் புட்கொடி யோன் புனித,',
-     '(என்றது.) ஸ்ரீமகாலக்ஷ்மிக்கு நாயகரும், பீதாம்பரத்தையுடையவரும')
+    {'numbered': 22,
+     'unnumbered': 1,
+     'skipped': [],
+     'repeated': [],
+     'first': 1,
+     'last': 22}
 
-Uromarishi’s Pañcapakṣi (1917) numbers its verses in Tamil numerals with the old signs for ten and a hundred:
+`witness_verses` reads a witness edition’s raw page; `letters` keeps a verse’s letters alone; `text_changes` proposes changes where the nearest witness verse spells otherwise, and dropped virāmas.
 
 ``` python
-uro = json.load(open('samples/uromarishi.json'))
-[(b['n'], vnum(b['n'])) for p in uro for b in p['blocks'] if '௱' in str(b.get('n') or '')][:4]
+witness_verses('<p>क ख ॥ १ ॥</p><p>ग घ ॥ २ ॥</p>'), letters('रामः ॥ १ ॥ (टि)')
 ```
 
-    [('௨௱௫', 205), ('௨௱௬', 206), ('௨௱௭', 207), ('௨௱௮', 208)]
-
-## The pieces
-
-- [`vnum`](https://vedicreader.github.io/lekhaka/verses.html#vnum), [`mend`](https://vedicreader.github.io/lekhaka/verses.html#mend), [`renumber`](https://vedicreader.github.io/lekhaka/verses.html#renumber), [`assemble`](https://vedicreader.github.io/lekhaka/verses.html#assemble), `assemble_colophon`, [`check_counts`](https://vedicreader.github.io/lekhaka/verses.html#check_counts): numbers and chapters. A page’s blocks may sit under `blocks` or `items`; a `head` is a heading (`KINDS`); `join_cont` rejoins a block a page break cut.
-- `apply_fixes`, `number_runs`, `borrow_numbers`, `cut_by_plan`, `drop_pages`: what a reading gets wrong, put right before [`assemble`](https://vedicreader.github.io/lekhaka/verses.html#assemble). `fix_chapters`, `sutras`: after it.
-- [`fix_aksharas`](https://vedicreader.github.io/lekhaka/verses.html#fix_aksharas), [`bad_aksharas`](https://vedicreader.github.io/lekhaka/verses.html#bad_aksharas), `norm`, `virama`: malformed akṣaras and typing slips in Devanagari.
-- `cut`, `numbering`: verses laid into titles. `witness_verses`, `text_changes`, `ref_check`, `move_lines`: a reading checked against another edition. `verse_text`, `disagree`, `compare`: two readings of a page compared.
-- [`read_book`](https://vedicreader.github.io/lekhaka/book.html#read_book), [`book_md`](https://vedicreader.github.io/lekhaka/book.html#book_md): a book end to end, through vishalakshi.
+    ([(1, 'क ख'), (2, 'ग घ')], 'रामः')
 
 ``` python
-fix_aksharas('ध्ार्म'), vnum('२६॥२७'), vnum('२६॥ १', pick='first')
+wit = [(v['n'], v['text'].replace('शेभनाः', 'शोभनाः')) for v in chs[0]['verses']]
+[(c['id'], c['read'], c['print'], c['why']) for c in text_changes(chs[:1], wit)]
 ```
 
-    ('धार्म', 27, 26)
+    [('1.2.w4', 'शेभनाः', 'शोभनाः', 'the witness (2) reads so')]
+
+`ref_check` flags verses unlike a reference; `move_lines` moves a verse’s leading lines back to the verse they close.
+
+``` python
+ref = {1: [letters(v['text']) for v in chs[0]['verses']]}; ref[1][4] = ''
+ref_check(chs[:1], ref)
+```
+
+    ['1.5 (p0023a): reads unlike the reference (0.29), check against the scan']
+
+``` python
+mv = deepcopy(chs[:1]); a, b = mv[0]['verses'][:2]; ls = a['text'].split('\n')
+a['text'], b['text'] = ls[0], ls[1] + '\n' + b['text']
+move_lines(mv, {(1, v['n']): letters(v['text']) for v in chs[0]['verses']}, p := []); p, mv[0]['verses'][0]['text'] == chs[0]['verses'][0]['text']
+```
+
+    (['1.2: 1 leading line(s) moved back to 1.1'], True)
+
+`verse_text`, `lev` and `disagree` measure how far two readings of a page are apart; `compare` tabulates it for pairs of readings.
+
+``` python
+b2 = deepcopy(bj); b2[1]['blocks'] = b2[1]['blocks'][1:]   # a second reading that lost p0023a's first verse
+verse_text(bj[1])[:12], lev('क्रियः', 'क्रिया'), round(disagree(bj[1], b2[1]), 2)
+```
+
+    ('क्रियःशिरोवक', 1, 0.34)
+
+``` python
+md, flag = compare({'opus': bj, 'other': b2}, [('opus', 'other')])
+print(md)
+```
+
+    | page | opus vs other |
+    |---|---|
+    | p0023a | 34.1% |
+
+    opus vs other: 16 pages, mean 2.1%, 1 at 10% or more
