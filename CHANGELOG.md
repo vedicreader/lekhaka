@@ -2,6 +2,12 @@
 
 <!-- do not remove -->
 
+## 0.0.7
+- `assemble_book(pages, …)` assembles pages already read, a vault's after its proofread is accepted, say. It is `read_book`'s assembly half and `read_book` calls it. A verse read without its `n` takes the number it closes on (`॥ १२ ॥`, Tamil numerals too); blocks with no text go. `cont`, `openers` and `renumber` (each chapter's numbers mended) are options. It returns the prose it left out as `left`.
+- Every akṣara mend is noted in `probs` as `<page>: <chapter>.<verse>: akṣaras mended`.
+- `read_book` takes `openers` and `renumber`, and passes anything else to `read_doc`: `cache`, `redo`, `clean`, `tries`, `spread`, `strips`, `progress`, `pii`. Its result carries `left`, the reading's `cost`, and the pages `failed`, `unread` and `blocked`.
+- Needs vishalakshi 0.1.25.
+
 ## 0.0.6
 - `fix_chapters`: a `start` row's `printed` picks between two verses of one number in a chapter, by the page it is on (`'p0108a'`) or which one it is (2 is the second); a `fix_all` row replaces every occurrence. `apply_fixes` takes `fix_all` too.
 - `assemble(openers=True)`: an unnumbered block closed by ॥ (a maṅgala) stays a verse of its own, `n` None, in the chapter of the verse after it; `mend` and `renumber` leave it where it is.
