@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.19">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Read printed verse numbers, put verses into chapters, mend their numbering, and repair malformed Devanagari">
+
+<title>verses – lekhaka</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-bf27225e3a48a9273f3daa8f8e829971.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-f2788e636de456f6409e966386820849.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="verses – lekhaka">
+<meta property="og:description" content="Read printed verse numbers, put verses into chapters, mend their numbering, and repair malformed Devanagari">
+<meta property="og:site_name" content="lekhaka">
+<meta name="twitter:title" content="verses – lekhaka">
+<meta name="twitter:description" content="Read printed verse numbers, put verses into chapters, mend their numbering, and repair malformed Devanagari">
+<meta name="twitter:card" content="summary">
+</head>
+
+<body class="nav-sidebar floating nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">lekhaka</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools tools-end">
+</div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./verses.html">verses</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">lekhaka</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./verses.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">verses</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./book.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">book</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./repairs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">repairs</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./editions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">editions</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#verse-numbers" id="toc-verse-numbers" class="nav-link active" data-scroll-target="#verse-numbers">Verse numbers</a></li>
+  <li><a href="#mending-a-run" id="toc-mending-a-run" class="nav-link" data-scroll-target="#mending-a-run">Mending a run</a></li>
+  <li><a href="#chapters" id="toc-chapters" class="nav-link" data-scroll-target="#chapters">Chapters</a></li>
+  <li><a href="#chapters-cut-at-their-colophons" id="toc-chapters-cut-at-their-colophons" class="nav-link" data-scroll-target="#chapters-cut-at-their-colophons">Chapters cut at their colophons</a></li>
+  <li><a href="#akṣaras" id="toc-akṣaras" class="nav-link" data-scroll-target="#akṣaras">Akṣaras</a></li>
+  <li><a href="#typing-slips" id="toc-typing-slips" class="nav-link" data-scroll-target="#typing-slips">Typing slips</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/vedicreader/lekhaka/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div><div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="verses.html.md"><i class="bi bi-file-code"></i>Markdown</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">verses</h1>
+</div>
+
+<div>
+  <div class="description">
+    Read printed verse numbers, put verses into chapters, mend their numbering, and repair malformed Devanagari
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<p>A vision model reads each page of a book and returns a list of blocks. A block is one piece of the page as the model saw it: a verse, a chapter heading, a commentary, a colophon (the line that closes a chapter, इति … अध्यायः), or a stretch of prose. Each block has a <a href="https://vedicreader.github.io/lekhaka/verses.html#kind"><code>kind</code></a> that says which of these it is, the printed number <code>n</code> if it has one, and its <code>text</code>. A page is a dict <code>{page, blocks}</code>, which is what <code>vishalakshi.read_doc</code> returns.</p>
+<p>Readers do not all use the same names. vedicreader’s saved readings keep a page’s blocks under <code>items</code> instead of <a href="https://vedicreader.github.io/lekhaka/verses.html#blocks"><code>blocks</code></a>, and some models call a heading <code>head</code>. <a href="https://vedicreader.github.io/lekhaka/verses.html#blocks"><code>blocks</code></a> returns a page’s blocks under either key, and <a href="https://vedicreader.github.io/lekhaka/verses.html#kind"><code>kind</code></a> returns a block’s kind with <code>head</code> read as <code>heading</code>, through the <code>KINDS</code> table.</p>
+<p>The functions in this module put verses into chapters. A verse comes out as <code>{n, text, page, heading}</code>: its number, its text, the page it was printed on, and the heading printed just before it, if any. Whenever a function changes a number or a text, it adds a line to <code>probs</code>, a list you pass in, so that a proofreader can check each change against the scan.</p>
+<div id="1f75e49c" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T04:46:02.335947+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T04:46:03.187095+00:00&quot;,&quot;total&quot;:0.8511539100000078}}" data-execution_count="4">
+<hr>
+<p><a href="https://github.com/vedicreader/lekhaka/blob/main/lekhaka/verses.py#L24" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="blocks" class="level3">
+<h3 class="anchored" data-anchor-id="blocks">blocks</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> blocks(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    p</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>A page’s list of blocks, whether the page keeps them under <a href="https://vedicreader.github.io/lekhaka/verses.html#blocks"><code>blocks</code></a> or under <code>items</code>.</em></p>
+</section>
+</div>
+<div id="e7634aeb" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T04:46:03.187282+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T04:46:03.192995+00:00&quot;,&quot;total&quot;:0.005716810999999211}}" data-execution_count="5">
+<hr>
+<p><a href="https://github.com/vedicreader/lekhaka/blob/main/lekhaka/verses.py#L19" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="kind" class="level3">
+<h3 class="anchored" data-anchor-id="kind">kind</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> kind(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    b</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">str</span> <span class="op">|</span> <span class="va">None</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>A block’s kind, with an alias from <code>KINDS</code>, such as <code>head</code>, read as the kind it stands for.</em></p>
+</section>
+</div>
+<div id="43b2749a" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>test_eq(blocks(<span class="bu">dict</span>(page<span class="op">=</span><span class="dv">1</span>, items<span class="op">=</span>[<span class="dv">1</span>])), [<span class="dv">1</span>])<span class="op">;</span> test_eq(blocks(<span class="bu">dict</span>(page<span class="op">=</span><span class="dv">1</span>, blocks<span class="op">=</span>[<span class="dv">2</span>], items<span class="op">=</span>[<span class="dv">1</span>])), [<span class="dv">2</span>])<span class="op">;</span> test_eq(blocks(<span class="bu">dict</span>(page<span class="op">=</span><span class="dv">1</span>)), [])</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>test_eq(kind(<span class="bu">dict</span>(kind<span class="op">=</span><span class="st">'head'</span>)), <span class="st">'heading'</span>)<span class="op">;</span> test_eq(kind(<span class="bu">dict</span>(kind<span class="op">=</span><span class="st">'verse'</span>)), <span class="st">'verse'</span>)<span class="op">;</span> test_eq(kind({}), <span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="verse-numbers" class="level2">
+<h2 class="anchored" data-anchor-id="verse-numbers">Verse numbers</h2>
+<p>A verse number can be printed in ASCII, Devanagari or Tamil digits, and is often wrapped in daṇḍas or brackets, as in ॥ २६ ॥ or (௪௦). <a href="https://vedicreader.github.io/lekhaka/verses.html#vnum"><code>vnum</code></a> finds the digits and returns the number as an int, or None when there are no digits. Older Tamil prints write numbers with the signs ௰ (ten), ௱ (hundred) and ௲ (thousand), and <a href="https://vedicreader.github.io/lekhaka/verses.html#vnum"><code>vnum</code></a> reads those too: ௬௱௨ is 602.</p>
+<p>Sometimes a block carries two numbers, as in २६॥२७. This usually means the model read two verses as one block, so <a href="https://vedicreader.github.io/lekhaka/verses.html#vnum"><code>vnum</code></a> returns the last number, 27. If you pass <code>probs</code>, it also records that verses 26 and 27 were printed as one. Some books print a running number followed by the verse’s number within its section, as in २६॥ १. For those, <code>pick='first'</code> returns the running number. The tests below show each case.</p>
+<div id="82cf42e1" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T04:46:03.197251+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T04:46:03.202304+00:00&quot;,&quot;total&quot;:0.0050575530000003255}}" data-execution_count="7">
+<hr>
+<p><a href="https://github.com/vedicreader/lekhaka/blob/main/lekhaka/verses.py#L40" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="vnum" class="level3">
+<h3 class="anchored" data-anchor-id="vnum">vnum</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> vnum(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    n, page:NoneType<span class="op">=</span><span class="va">None</span>, probs:<span class="bu">list</span><span class="op">=</span><span class="va">None</span>, pick:<span class="bu">str</span><span class="op">=</span><span class="st">'last'</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">int</span> <span class="op">|</span> <span class="va">None</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>A printed verse number as an int, or None when it has no digits; when several are printed together, the last one, or the first with <code>pick='first'</code>.</em></p>
+</section>
+</div>
+<div id="98b64344" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>_p <span class="op">=</span> []</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>test_eq(vnum(<span class="st">'॥ २६ ॥'</span>), <span class="dv">26</span>)<span class="op">;</span> test_eq(vnum(<span class="st">'(௪௦)'</span>), <span class="dv">40</span>)<span class="op">;</span> test_eq(vnum(<span class="dv">12</span>), <span class="dv">12</span>)<span class="op">;</span> test_eq(vnum(<span class="va">None</span>), <span class="va">None</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>test_eq(vnum(<span class="st">'२६॥२७'</span>, <span class="st">'p5'</span>, _p), <span class="dv">27</span>)<span class="op">;</span> test_eq(_p, [<span class="st">'p5: verses 26-27 printed as one, numbered 27'</span>])</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>test_eq(vnum(<span class="st">'௬௱௨'</span>), <span class="dv">602</span>)<span class="op">;</span> test_eq(vnum(<span class="st">'௨௱௩'</span>), <span class="dv">203</span>)<span class="op">;</span> test_eq(vnum(<span class="st">'௰'</span>), <span class="dv">10</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>test_eq(vnum(<span class="st">'२६॥ १'</span>, pick<span class="op">=</span><span class="st">'first'</span>), <span class="dv">26</span>)   <span class="co"># a running number, then the count within its part</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="mending-a-run" class="level2">
+<h2 class="anchored" data-anchor-id="mending-a-run">Mending a run</h2>
+<p>Within a chapter the numbers should run 1, 2, 3 without gaps. Two common mistakes break that run in a way the neighbouring numbers can repair, and <a href="https://vedicreader.github.io/lekhaka/verses.html#mend"><code>mend</code></a> repairs both.</p>
+<p>The first is a number read twice. If the model reads 148, 150, 150, 151, the verse after 148 has to be 149, so <a href="https://vedicreader.github.io/lekhaka/verses.html#mend"><code>mend</code></a> takes the first 150 as 149. The second is two verses read as one block. If the model reads verse 148 and then a long block numbered 150, verse 149 is missing and is probably the first half of that block. <a href="https://vedicreader.github.io/lekhaka/verses.html#mend"><code>mend</code></a> splits the block after its last inner line that ends with a daṇḍa (।, ॥ or |) or a full stop, keeping at least three lines in the first part, and numbers that part 149. Both repairs happen only when the verse before is numbered exactly two less.</p>
+<p>That rule suits verses printed on four lines. In a book of two-line verses, both lines of a verse end in a daṇḍa, so the last such line is the wrong place to cut. <code>pair=True</code> lets the first part be two lines long and cuts where the two parts come out closest in length.</p>
+<p><a href="https://vedicreader.github.io/lekhaka/verses.html#renumber"><code>renumber</code></a> repairs the mistakes found in long chapters. One is a run read at a constant offset: in 52, 63, 64, 65, 56 the model misread the tens digit of three verses, and the sequence returns to normal at 56. Another is a single number that disagrees with both neighbours, such as 9 between 2 and 4, or a number that lost its leading digit, such as 1 read for 101 between 100 and 102. <a href="https://vedicreader.github.io/lekhaka/verses.html#renumber"><code>renumber</code></a> only changes numbered verses. A verse with no number stays where it is.</p>
+<div id="77350e74" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T04:46:03.212983+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T04:46:03.217608+00:00&quot;,&quot;total&quot;:0.004631859999989274}}" data-execution_count="9">
+<hr>
+<p><a href="https://github.com/vedicreader/lekhaka/blob/main/lekhaka/verses.py#L67" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="renumber" class="level3">
+<h3 class="anchored" data-anchor-id="renumber">renumber</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> renumber(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    vs, where, probs:<span class="bu">list</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Correct misread verse numbers in a chapter from the numbers around them, leaving unnumbered verses where they are.</em></p>
+</section>
+</div>
+<div id="da19f3d1" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T04:46:03.217795+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T04:46:03.224422+00:00&quot;,&quot;total&quot;:0.006631114999990473}}" data-execution_count="10">
+<hr>
+<p><a href="https://github.com/vedicreader/lekhaka/blob/main/lekhaka/verses.py#L49" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="mend" class="level3">
+<h3 class="anchored" data-anchor-id="mend">mend</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mend(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    vs, probs:<span class="bu">list</span>, pair:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Correct a verse number read twice and split two verses read as one block, where the numbers around them show what is right.</em></p>
+</section>
+</div>
+<div id="df4c1dff" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>V <span class="op">=</span> <span class="kw">lambda</span> n, t<span class="op">=</span><span class="st">'a ।</span><span class="ch">\n</span><span class="st">b ॥'</span>, pg<span class="op">=</span><span class="dv">1</span>: <span class="bu">dict</span>(n<span class="op">=</span>n, text<span class="op">=</span>t, page<span class="op">=</span>pg, heading<span class="op">=</span><span class="va">None</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>_p <span class="op">=</span> []</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>test_eq([v[<span class="st">'n'</span>] <span class="cf">for</span> v <span class="kw">in</span> mend([V(<span class="dv">148</span>), V(<span class="dv">150</span>), V(<span class="dv">150</span>), V(<span class="dv">151</span>)], _p)], [<span class="dv">148</span>, <span class="dv">149</span>, <span class="dv">150</span>, <span class="dv">151</span>])<span class="op">;</span> test_eq(<span class="bu">len</span>(_p), <span class="dv">1</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>_p <span class="op">=</span> []</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>_m <span class="op">=</span> mend([V(<span class="dv">1</span>), V(<span class="dv">3</span>, <span class="st">'a</span><span class="ch">\n</span><span class="st">b</span><span class="ch">\n</span><span class="st">c ॥</span><span class="ch">\n</span><span class="st">d</span><span class="ch">\n</span><span class="st">e ॥'</span>)], _p)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>test_eq([(v[<span class="st">'n'</span>], v[<span class="st">'text'</span>]) <span class="cf">for</span> v <span class="kw">in</span> _m], [(<span class="dv">1</span>, <span class="st">'a ।</span><span class="ch">\n</span><span class="st">b ॥'</span>), (<span class="dv">2</span>, <span class="st">'a</span><span class="ch">\n</span><span class="st">b</span><span class="ch">\n</span><span class="st">c ॥'</span>), (<span class="dv">3</span>, <span class="st">'d</span><span class="ch">\n</span><span class="st">e ॥'</span>)])</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>_p <span class="op">=</span> []</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>test_eq([v[<span class="st">'n'</span>] <span class="cf">for</span> v <span class="kw">in</span> renumber([V(n) <span class="cf">for</span> n <span class="kw">in</span> (<span class="dv">52</span>, <span class="dv">63</span>, <span class="dv">64</span>, <span class="dv">65</span>, <span class="dv">56</span>, <span class="dv">57</span>)], <span class="st">'ch 3'</span>, _p)], [<span class="dv">52</span>, <span class="dv">53</span>, <span class="dv">54</span>, <span class="dv">55</span>, <span class="dv">56</span>, <span class="dv">57</span>])<span class="op">;</span> test_eq(<span class="bu">len</span>(_p), <span class="dv">3</span>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>test_eq([v[<span class="st">'n'</span>] <span class="cf">for</span> v <span class="kw">in</span> renumber([V(n) <span class="cf">for</span> n <span class="kw">in</span> (<span class="dv">99</span>, <span class="dv">100</span>, <span class="dv">1</span>, <span class="dv">102</span>)], <span class="st">'ch 9'</span>, [])], [<span class="dv">99</span>, <span class="dv">100</span>, <span class="dv">101</span>, <span class="dv">102</span>])</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>test_eq([v[<span class="st">'n'</span>] <span class="cf">for</span> v <span class="kw">in</span> renumber([V(<span class="va">None</span>), V(<span class="dv">99</span>), V(<span class="dv">100</span>), V(<span class="dv">1</span>), V(<span class="dv">102</span>)], <span class="st">'ch 9'</span>, [])], [<span class="va">None</span>, <span class="dv">99</span>, <span class="dv">100</span>, <span class="dv">101</span>, <span class="dv">102</span>])   <span class="co"># an unnumbered opener stays put</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>test_eq([v[<span class="st">'n'</span>] <span class="cf">for</span> v <span class="kw">in</span> mend([V(<span class="va">None</span>), V(<span class="dv">1</span>), V(<span class="dv">3</span>, <span class="st">'a</span><span class="ch">\n</span><span class="st">b</span><span class="ch">\n</span><span class="st">c ॥</span><span class="ch">\n</span><span class="st">d</span><span class="ch">\n</span><span class="st">e ॥'</span>)], [])], [<span class="va">None</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="chapters" class="level2">
+<h2 class="anchored" data-anchor-id="chapters">Chapters</h2>
+<p><a href="https://vedicreader.github.io/lekhaka/verses.html#assemble"><code>assemble</code></a> reads the pages in order and builds chapters, each a dict <code>{heading, colophon, verses}</code>. It returns the chapters and a list of problems.</p>
+<p>The <code>kinds</code> argument says which blocks count as verse. By default these are blocks of kind <code>verse</code> and blocks with no kind. With <code>kinds=None</code>, every block except headings and colophons counts as verse, which suits a reading in which the model gave verse text kind names of its own.</p>
+<p>A heading becomes the name of the open chapter if that chapter has no name yet, or opens a new chapter if none is open. Each verse also keeps the heading printed just before it in its own <code>heading</code> field. A verse numbered 1 after a higher number starts a new chapter. A colophon ends the open chapter and is stored as its <code>colophon</code>.</p>
+<p>A verse that starts at the foot of one page often has its number printed only at its end, on the next page, so the model returns the first part as a block with no number. <a href="https://vedicreader.github.io/lekhaka/verses.html#assemble"><code>assemble</code></a> holds every unnumbered block and adds its text to the next numbered verse. If a colophon comes while text is still held, that text becomes the chapter’s last verse, numbered one more than the verse before it, and this is recorded in the problems.</p>
+<p>A book photographed as two-page spreads may show the same page twice, and then the model reads the same verse twice. A numbered verse whose number and last line match a verse already in the chapter is dropped, and an unnumbered block that repeats the one held before it is kept once. As verses are added, any break in the numbering, such as verse 5 after verse 3, is listed in the problems. When every page is in, <a href="https://vedicreader.github.io/lekhaka/verses.html#mend"><code>mend</code></a> runs on each chapter.</p>
+<p>Many books print a commentary after each verse; in Tamil books this is the urai. The model gives such a block a kind of its own, such as <code>urai</code>, <code>gloss</code> or <code>bhashya</code>. Name those kinds in <code>notes</code>, and <a href="https://vedicreader.github.io/lekhaka/verses.html#assemble"><code>assemble</code></a> keeps each such block with the verse it follows, in <code>verse['notes'][kind]</code>, as a list of texts. A commentary that arrives while verse text is still held, with no number yet, is kept for the next verse that is added. With the default <code>kinds</code> and no <code>notes</code>, these blocks are skipped. Some books, the Vidhānamālai among them, print the number at the end of the commentary and leave the verse unnumbered. With <code>number_from_note=True</code>, a numbered commentary block gives its number to the verse text held before it, and this is recorded in the problems.</p>
+<p>A page break can also cut a block in two, so that its second half opens the next page. Some readings mark that second half with <code>cont</code>. Only when you pass <code>cont=True</code> does <a href="https://vedicreader.github.io/lekhaka/verses.html#assemble"><code>assemble</code></a> first join each such half to the block it continues, using <a href="https://vedicreader.github.io/lekhaka/verses.html#join_cont"><code>join_cont</code></a> on a copy of the pages.</p>
+<p>Not every unnumbered block belongs to the next verse. Many books open with a maṅgala, a verse of blessing printed before verse 1 without a number, and commentaries quote whole verses from other works. Such a block ends in ॥ like a finished verse. By default <a href="https://vedicreader.github.io/lekhaka/verses.html#assemble"><code>assemble</code></a> treats it like any other unnumbered block and adds its text to the next numbered verse, which then holds two verses. With <code>openers=True</code>, an unnumbered block that ends in ॥ is kept as a verse of its own, with <code>n</code> set to None. It goes into the chapter of the numbered verse that follows it, just before that verse; if a colophon comes first, it goes at the end of the chapter the colophon closes. <a href="https://vedicreader.github.io/lekhaka/verses.html#mend"><code>mend</code></a> and <a href="https://vedicreader.github.io/lekhaka/verses.html#renumber"><code>renumber</code></a> leave such verses where they are.</p>
+<p><a href="https://vedicreader.github.io/lekhaka/verses.html#join_cont"><code>join_cont</code></a> is the joining step on its own. When the first block on a page is marked <code>cont</code> and has the same kind as the last block on the page before, its text is added to that block: after a line break for a verse, and after a space for anything else. If the earlier text ends in a hyphen, the hyphen is removed and the two parts are joined with no space, so a word split across the page break is whole again. If the second half carries a number, the joined block takes it. <a href="https://vedicreader.github.io/lekhaka/verses.html#join_cont"><code>join_cont</code></a> changes the pages it is given and returns them.</p>
+<p>The tests below build small pages for each of these cases: a chapter closed by a colophon, a verse read twice, commentary kept as notes, a reading with <code>items</code> and <code>cont</code>, and maṅgala verses kept with <code>openers</code>.</p>
+<div id="3ea695db" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T04:46:03.228447+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T04:46:03.233976+00:00&quot;,&quot;total&quot;:0.005533810000002859}}" data-execution_count="12">
+<hr>
+<p><a href="https://github.com/vedicreader/lekhaka/blob/main/lekhaka/verses.py#L93" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="join_cont" class="level3">
+<h3 class="anchored" data-anchor-id="join_cont">join_cont</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> join_cont(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    pages</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Join each block marked <code>cont</code> at the top of a page to the block it continues on the page before, rejoining a word hyphenated at the break.</em></p>
+</section>
+</div>
+<div id="fe04c80f" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>_jc <span class="op">=</span> [<span class="bu">dict</span>(page<span class="op">=</span><span class="dv">1</span>, items<span class="op">=</span>[<span class="bu">dict</span>(kind<span class="op">=</span><span class="st">'prose'</span>, text<span class="op">=</span><span class="st">'a long com-'</span>), <span class="bu">dict</span>(kind<span class="op">=</span><span class="st">'verse'</span>, text<span class="op">=</span><span class="st">'क ।'</span>)]),</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>       <span class="bu">dict</span>(page<span class="op">=</span><span class="dv">2</span>, items<span class="op">=</span>[<span class="bu">dict</span>(kind<span class="op">=</span><span class="st">'verse'</span>, text<span class="op">=</span><span class="st">'ख ॥२॥'</span>, n<span class="op">=</span><span class="dv">2</span>, cont<span class="op">=</span><span class="va">True</span>), <span class="bu">dict</span>(kind<span class="op">=</span><span class="st">'prose'</span>, text<span class="op">=</span><span class="st">'next'</span>)]),</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>       <span class="bu">dict</span>(page<span class="op">=</span><span class="dv">3</span>, items<span class="op">=</span>[<span class="bu">dict</span>(kind<span class="op">=</span><span class="st">'prose'</span>, text<span class="op">=</span><span class="st">'one'</span>, cont<span class="op">=</span><span class="va">True</span>)])]</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>test_eq([(b[<span class="st">'kind'</span>], b[<span class="st">'text'</span>], b.get(<span class="st">'n'</span>)) <span class="cf">for</span> p <span class="kw">in</span> join_cont(_jc) <span class="cf">for</span> b <span class="kw">in</span> p[<span class="st">'items'</span>]], [(<span class="st">'prose'</span>, <span class="st">'a long com-'</span>, <span class="va">None</span>), (<span class="st">'verse'</span>, <span class="st">'क ।</span><span class="ch">\n</span><span class="st">ख ॥२॥'</span>, <span class="dv">2</span>), (<span class="st">'prose'</span>, <span class="st">'next one'</span>, <span class="va">None</span>)])</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>test_eq(join_cont([<span class="bu">dict</span>(page<span class="op">=</span><span class="dv">1</span>, blocks<span class="op">=</span>[<span class="bu">dict</span>(kind<span class="op">=</span><span class="st">'prose'</span>, text<span class="op">=</span><span class="st">'com-'</span>)]), <span class="bu">dict</span>(page<span class="op">=</span><span class="dv">2</span>, blocks<span class="op">=</span>[<span class="bu">dict</span>(kind<span class="op">=</span><span class="st">'prose'</span>, text<span class="op">=</span><span class="st">'mentary'</span>, cont<span class="op">=</span><span class="va">True</span>)])])[<span class="dv">0</span>][<span class="st">'blocks'</span>][<span class="dv">0</span>][<span class="st">'text'</span>], <span class="st">'commentary'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="eb991810" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T04:46:03.247999+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T04:46:03.253107+00:00&quot;,&quot;total&quot;:0.005113007000005609}}" data-execution_count="14">
+<hr>
+<p><a href="https://github.com/vedicreader/lekhaka/blob/main/lekhaka/verses.py#L173" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="check_counts" class="level3">
+<h3 class="anchored" data-anchor-id="check_counts">check_counts</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> check_counts(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    chs, counts</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>List the chapters whose number of verses differs from the expected count, and a difference in the number of chapters.</em></p>
+</section>
+</div>
+<div id="6b9712cf" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T04:46:03.253258+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T04:46:03.265103+00:00&quot;,&quot;total&quot;:0.011850778999999534}}" data-execution_count="15">
+<hr>
+<p><a href="https://github.com/vedicreader/lekhaka/blob/main/lekhaka/verses.py#L117" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="assemble" class="level3">
+<h3 class="anchored" data-anchor-id="assemble">assemble</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> assemble(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    pages, pair:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span>, kinds:<span class="bu">tuple</span><span class="op">=</span>(<span class="st">'verse'</span>, <span class="va">None</span>), notes:<span class="bu">tuple</span><span class="op">=</span>(), number_from_note:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    cont:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span>, openers:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">tuple</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Build chapters <code>[{heading, colophon, verses}]</code> from pages of blocks, and return them with the problems found. <code>kinds</code> names the</em> block kinds that count as verse, and None means every kind except headings and colophons. A block whose kind is in <code>notes</code> is kept in the <code>notes</code> of its verse, and <code>number_from_note=True</code> numbers a verse from its commentary. <code>cont=True</code> first joins blocks cut by a page break, and <code>openers=True</code> keeps an unnumbered block ending in ॥ as a verse of its own with <code>n</code> None.</p>
+</section>
+</div>
+<div id="cefdac79" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>B <span class="op">=</span> <span class="kw">lambda</span> kind, text, n<span class="op">=</span><span class="va">None</span>: <span class="bu">dict</span>(kind<span class="op">=</span>kind, text<span class="op">=</span>text, n<span class="op">=</span>n)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>_pages <span class="op">=</span> [<span class="bu">dict</span>(page<span class="op">=</span><span class="dv">0</span>, blocks<span class="op">=</span>[B(<span class="st">'heading'</span>, <span class="st">'अथ प्रथमोऽध्यायः'</span>), B(<span class="st">'verse'</span>, <span class="st">'क ।</span><span class="ch">\n</span><span class="st">ख ॥१॥'</span>, <span class="st">'१'</span>), B(<span class="st">'verse'</span>, <span class="st">'ग ।'</span>, <span class="va">None</span>)]),</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>          <span class="bu">dict</span>(page<span class="op">=</span><span class="dv">1</span>, blocks<span class="op">=</span>[B(<span class="st">'verse'</span>, <span class="st">'घ ॥२॥'</span>, <span class="st">'॥२॥'</span>), B(<span class="st">'verse'</span>, <span class="st">'ङ ॥३॥'</span>, <span class="dv">3</span>), B(<span class="st">'colophon'</span>, <span class="st">'इति प्रथमोऽध्यायः'</span>)]),</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>          <span class="bu">dict</span>(page<span class="op">=</span><span class="dv">2</span>, blocks<span class="op">=</span>[B(<span class="st">'verse'</span>, <span class="st">'च ॥१॥'</span>, <span class="dv">1</span>), B(<span class="st">'verse'</span>, <span class="st">'छ ॥२॥'</span>, <span class="dv">2</span>), B(<span class="st">'verse'</span>, <span class="st">'छ ॥२॥'</span>, <span class="dv">2</span>), B(<span class="st">'prose'</span>, <span class="st">'an English note'</span>)])]</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>_chs, _pr <span class="op">=</span> assemble(_pages)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="bu">len</span>(_chs), <span class="dv">2</span>)<span class="op">;</span> test_eq(_chs[<span class="dv">0</span>][<span class="st">'heading'</span>], <span class="st">'अथ प्रथमोऽध्यायः'</span>)<span class="op">;</span> test_eq(_chs[<span class="dv">0</span>][<span class="st">'colophon'</span>], <span class="st">'इति प्रथमोऽध्यायः'</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>test_eq([(v[<span class="st">'n'</span>], v[<span class="st">'text'</span>]) <span class="cf">for</span> v <span class="kw">in</span> _chs[<span class="dv">0</span>][<span class="st">'verses'</span>]], [(<span class="dv">1</span>, <span class="st">'क ।</span><span class="ch">\n</span><span class="st">ख ॥१॥'</span>), (<span class="dv">2</span>, <span class="st">'ग ।</span><span class="ch">\n</span><span class="st">घ ॥२॥'</span>), (<span class="dv">3</span>, <span class="st">'ङ ॥३॥'</span>)])</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>test_eq([v[<span class="st">'n'</span>] <span class="cf">for</span> v <span class="kw">in</span> _chs[<span class="dv">1</span>][<span class="st">'verses'</span>]], [<span class="dv">1</span>, <span class="dv">2</span>])<span class="op">;</span> test_eq(_pr, [])</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>test_eq(check_counts(_chs, [<span class="dv">3</span>, <span class="dv">2</span>]), [])<span class="op">;</span> test_eq(check_counts(_chs, [<span class="dv">3</span>, <span class="dv">3</span>]), [<span class="st">'chapter 2: 2 verses, the plan has 3'</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="ebd405e5" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>_u <span class="op">=</span> [<span class="bu">dict</span>(page<span class="op">=</span><span class="dv">0</span>, blocks<span class="op">=</span>[B(<span class="st">'verse'</span>, <span class="st">'பா'</span>, <span class="dv">1</span>), B(<span class="st">'urai'</span>, <span class="st">'உரை'</span>, <span class="dv">1</span>)])]</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="bu">len</span>(assemble(_u)[<span class="dv">0</span>][<span class="dv">0</span>][<span class="st">'verses'</span>]), <span class="dv">1</span>)<span class="op">;</span> test_eq([v[<span class="st">'text'</span>] <span class="cf">for</span> v <span class="kw">in</span> assemble(_u, kinds<span class="op">=</span><span class="va">None</span>)[<span class="dv">0</span>][<span class="dv">0</span>][<span class="st">'verses'</span>]], [<span class="st">'பா'</span>, <span class="st">'உரை'</span>])   <span class="co"># every kind but headings and colophons</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="6eb332c3" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>_vm <span class="op">=</span> [<span class="bu">dict</span>(page<span class="op">=</span><span class="dv">0</span>, blocks<span class="op">=</span>[B(<span class="st">'verse'</span>, <span class="st">'பா ஒன்று'</span>, <span class="va">None</span>), B(<span class="st">'urai'</span>, <span class="st">'உரை ஒன்று'</span>, <span class="dv">1</span>), B(<span class="st">'verse'</span>, <span class="st">'பா இரண்டு'</span>, <span class="va">None</span>), B(<span class="st">'urai'</span>, <span class="st">'உரை இரண்டு'</span>, <span class="dv">2</span>)])]</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>_c, _p <span class="op">=</span> assemble(_vm, notes<span class="op">=</span>(<span class="st">'urai'</span>,), number_from_note<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>test_eq([(v[<span class="st">'n'</span>], v[<span class="st">'text'</span>], v[<span class="st">'notes'</span>][<span class="st">'urai'</span>]) <span class="cf">for</span> v <span class="kw">in</span> _c[<span class="dv">0</span>][<span class="st">'verses'</span>]], [(<span class="dv">1</span>, <span class="st">'பா ஒன்று'</span>, [<span class="st">'உரை ஒன்று'</span>]), (<span class="dv">2</span>, <span class="st">'பா இரண்டு'</span>, [<span class="st">'உரை இரண்டு'</span>])])</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>_g <span class="op">=</span> [<span class="bu">dict</span>(page<span class="op">=</span><span class="dv">0</span>, blocks<span class="op">=</span>[B(<span class="st">'verse'</span>, <span class="st">'a ॥१॥'</span>, <span class="dv">1</span>), B(<span class="st">'gloss'</span>, <span class="st">'its gloss'</span>), B(<span class="st">'verse'</span>, <span class="st">'b ॥२॥'</span>, <span class="dv">2</span>)])]</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>test_eq(assemble(_g, notes<span class="op">=</span>(<span class="st">'gloss'</span>,))[<span class="dv">0</span>][<span class="dv">0</span>][<span class="st">'verses'</span>][<span class="dv">0</span>][<span class="st">'notes'</span>], {<span class="st">'gloss'</span>: [<span class="st">'its gloss'</span>]})</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>test_eq(<span class="st">'notes'</span> <span class="kw">in</span> assemble(_g)[<span class="dv">0</span>][<span class="dv">0</span>][<span class="st">'verses'</span>][<span class="dv">0</span>], <span class="va">False</span>)   <span class="co"># without `notes` a gloss is not a verse and is not kept</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="e649f1bb" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>_it <span class="op">=</span> [<span class="bu">dict</span>(page<span class="op">=</span><span class="dv">0</span>, items<span class="op">=</span>[B(<span class="st">'head'</span>, <span class="st">'अथ प्रथमोऽध्यायः'</span>), B(<span class="st">'verse'</span>, <span class="st">'क ।</span><span class="ch">\n</span><span class="st">ख ॥१॥'</span>, <span class="dv">1</span>), <span class="bu">dict</span>(kind<span class="op">=</span><span class="st">'verse'</span>, text<span class="op">=</span><span class="st">'ग ।'</span>, <span class="bu">open</span><span class="op">=</span><span class="va">True</span>)]),</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>       <span class="bu">dict</span>(page<span class="op">=</span><span class="dv">1</span>, items<span class="op">=</span>[<span class="bu">dict</span>(kind<span class="op">=</span><span class="st">'verse'</span>, text<span class="op">=</span><span class="st">'घ ॥२॥'</span>, n<span class="op">=</span><span class="dv">2</span>, cont<span class="op">=</span><span class="va">True</span>)])]</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>_c, _p <span class="op">=</span> assemble(_it, cont<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>test_eq((_c[<span class="dv">0</span>][<span class="st">'heading'</span>], [(v[<span class="st">'n'</span>], v[<span class="st">'text'</span>]) <span class="cf">for</span> v <span class="kw">in</span> _c[<span class="dv">0</span>][<span class="st">'verses'</span>]]), (<span class="st">'अथ प्रथमोऽध्यायः'</span>, [(<span class="dv">1</span>, <span class="st">'क ।</span><span class="ch">\n</span><span class="st">ख ॥१॥'</span>), (<span class="dv">2</span>, <span class="st">'ग ।</span><span class="ch">\n</span><span class="st">घ ॥२॥'</span>)]))</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>test_eq(_it[<span class="dv">1</span>][<span class="st">'items'</span>][<span class="dv">0</span>][<span class="st">'text'</span>], <span class="st">'घ ॥२॥'</span>)   <span class="co"># the pages are left as they were</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="56b9c39b" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>_op <span class="op">=</span> [<span class="bu">dict</span>(page<span class="op">=</span><span class="dv">0</span>, blocks<span class="op">=</span>[B(<span class="st">'heading'</span>, <span class="st">'अथ प्रथमोऽध्यायः'</span>), B(<span class="st">'verse'</span>, <span class="st">'वन्दे गुरुम् ॥'</span>), B(<span class="st">'verse'</span>, <span class="st">'क ।</span><span class="ch">\n</span><span class="st">ख ॥१॥'</span>, <span class="dv">1</span>), B(<span class="st">'verse'</span>, <span class="st">'ग ॥२॥'</span>, <span class="dv">2</span>)]),</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>       <span class="bu">dict</span>(page<span class="op">=</span><span class="dv">1</span>, blocks<span class="op">=</span>[B(<span class="st">'verse'</span>, <span class="st">'नमः शिवाय ॥'</span>), B(<span class="st">'verse'</span>, <span class="st">'धर्मक्षेत्रे ॥१॥'</span>, <span class="dv">1</span>), B(<span class="st">'verse'</span>, <span class="st">'समवेता ।'</span>), B(<span class="st">'verse'</span>, <span class="st">'मामकाः ॥२॥'</span>, <span class="dv">2</span>), B(<span class="st">'verse'</span>, <span class="st">'श्रीः ॥'</span>), B(<span class="st">'colophon'</span>, <span class="st">'इति'</span>)])]</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>_c, _p <span class="op">=</span> assemble(_op, openers<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>test_eq([[(v[<span class="st">'n'</span>], v[<span class="st">'text'</span>], v[<span class="st">'heading'</span>]) <span class="cf">for</span> v <span class="kw">in</span> c[<span class="st">'verses'</span>]] <span class="cf">for</span> c <span class="kw">in</span> _c],</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>        [[(<span class="va">None</span>, <span class="st">'वन्दे गुरुम् ॥'</span>, <span class="st">'अथ प्रथमोऽध्यायः'</span>), (<span class="dv">1</span>, <span class="st">'क ।</span><span class="ch">\n</span><span class="st">ख ॥१॥'</span>, <span class="va">None</span>), (<span class="dv">2</span>, <span class="st">'ग ॥२॥'</span>, <span class="va">None</span>)],</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>         [(<span class="va">None</span>, <span class="st">'नमः शिवाय ॥'</span>, <span class="va">None</span>), (<span class="dv">1</span>, <span class="st">'धर्मक्षेत्रे ॥१॥'</span>, <span class="va">None</span>), (<span class="dv">2</span>, <span class="st">'समवेता ।</span><span class="ch">\n</span><span class="st">मामकाः ॥२॥'</span>, <span class="va">None</span>), (<span class="va">None</span>, <span class="st">'श्रीः ॥'</span>, <span class="va">None</span>)]])</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>test_eq(_p, [])</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>test_eq([(v[<span class="st">'n'</span>], v[<span class="st">'text'</span>][:<span class="dv">5</span>]) <span class="cf">for</span> v <span class="kw">in</span> assemble(_op)[<span class="dv">0</span>][<span class="dv">0</span>][<span class="st">'verses'</span>]], [(<span class="dv">1</span>, <span class="st">'वन्दे'</span>), (<span class="dv">2</span>, <span class="st">'ग ॥२॥'</span>)])   <span class="co"># by default an opener joins the verse after it</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="chapters-cut-at-their-colophons" class="level2">
+<h2 class="anchored" data-anchor-id="chapters-cut-at-their-colophons">Chapters cut at their colophons</h2>
+<p>Some editions print no usable chapter headings and number each chapter only in its colophon. The Khemraj edition of the Bṛhat Parāśara Horā Śāstra is one. It has a pūrva khaṇḍa (first part) of 51 adhyāyas (chapters) and an uttara bhāga (second part) of 20, and a chapter’s number appears only in its closing line, such as इति … राशिभेदनामाध्यायः ॥ ३ ॥. <a href="https://vedicreader.github.io/lekhaka/verses.html#assemble_colophon"><code>assemble_colophon</code></a> cuts the pages into chapters at these colophons. Each chapter comes out as <code>{part, no, name, heading, colophon, verses}</code>. By default every block other than a heading or a colophon counts as verse (<code>kinds=None</code>).</p>
+<p>A colophon closes a chapter only if it contains <code>adh</code>, which is ध्याय by default, as in अध्यायः. The chapter’s number is the first number after the last <code>adh</code> in the colophon. Failing that, it is the colophon block’s own <code>n</code>, and failing that, one more than the previous chapter in the same part. The chapter’s name is the text after one of the <code>anchor</code> words, such as जातके or होरायां, and before नाम, or before the ordinal word and अध्याय. If the colophon gives no name, the chapter takes one from an earlier heading of the form अथ … अध्यायः.</p>
+<p><code>parts</code> lists the book’s parts in order, each with a pattern. The pages start in the first part, and a heading or colophon that matches a later part’s pattern moves the count into that part, so chapter numbers can start again at 1 in the uttara bhāga.</p>
+<p>These editions also print things that are not the text, and there is a pattern for each. A colophon matching <code>contents</code> closes a table of contents printed before the text, so everything collected up to it is thrown away. A heading matching <code>skip</code> starts the commentator’s own verses, such as his maṅgala or his praise of the author, and verses are skipped until a heading matching <code>resume</code>. Commentators also write colophons of their own. A colophon matching <code>tika</code> (टीका or व्याख्या) that repeats the number of the chapter just closed marks the verses between the two colophons as commentary, and they are dropped. An ordinary colophon that repeats the number adds those verses to that chapter instead.</p>
+<p>If the verses before a colophon start again at 1 partway through, the chapter before them lost its colophon. The function then splits the verses where the numbering restarts, giving the first part the number before and no colophon or name, unless a chapter with that number already exists. Unnumbered blocks are held and joined to the next numbered verse, and repeated verses are dropped, as in <a href="https://vedicreader.github.io/lekhaka/verses.html#assemble"><code>assemble</code></a>. With <code>pair=True</code>, text still held when a colophon arrives becomes the chapter’s last verse, and <a href="https://vedicreader.github.io/lekhaka/verses.html#mend"><code>mend</code></a> uses its rule for two-line verses. Finally each chapter goes through <a href="https://vedicreader.github.io/lekhaka/verses.html#renumber"><code>renumber</code></a> and <a href="https://vedicreader.github.io/lekhaka/verses.html#mend"><code>mend</code></a>, and any break left in its numbering is listed in the problems.</p>
+<p>The test below runs a small two-page book through these cases.</p>
+<div id="8a5de0dc" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T04:46:03.277511+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T04:46:03.290671+00:00&quot;,&quot;total&quot;:0.01317035799999644}}" data-execution_count="17">
+<hr>
+<p><a href="https://github.com/vedicreader/lekhaka/blob/main/lekhaka/verses.py#L195" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="assemble_colophon" class="level3">
+<h3 class="anchored" data-anchor-id="assemble_colophon">assemble_colophon</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> assemble_colophon(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    pages, pair:<span class="bu">bool</span><span class="op">=</span><span class="va">False</span>, kinds:NoneType<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    parts:<span class="bu">tuple</span><span class="op">=</span>((<span class="st">'पूर्व'</span>, <span class="va">None</span>), (<span class="st">'उत्तर'</span>, <span class="st">'त्तरभाग|त्तरार्ध|त्तरार्द्ध|उ० भाग|उ० भा'</span>)), adh:<span class="bu">str</span><span class="op">=</span><span class="st">'ध्याय'</span>,</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    tika:<span class="bu">str</span><span class="op">=</span><span class="st">'टीका|व्याख्या'</span>, skip:<span class="bu">str</span><span class="op">=</span><span class="st">'टीकाकर्तु|टीकाकार|ग्रंथकर्तृप्रशंसा|ग्रन्थकर्तृप्रशंसा'</span>,</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    resume:<span class="bu">str</span><span class="op">=</span><span class="st">'ग्रंथारंभ|ग्रन्थारम्भ|ध्याय'</span>, contents:<span class="bu">str</span><span class="op">=</span><span class="st">'नुक्रमणिका'</span>,</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    anchor:<span class="bu">str</span><span class="op">=</span><span class="st">'(?:सारांशे|सारांश|सा०|भागे|उत्तरार्धे|उत्तरार्द्धे|शास्त्रे|होरायाम्|होरायां|चिन्तामणौ|जातके)'</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">tuple</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Cut pages into chapters <code>[{part, no, name, heading, colophon, verses}]</code> at the colophons that number them, and return them with the problems found.</em></p>
+</section>
+</div>
+<div id="93ae4e78" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>_bj <span class="op">=</span> [<span class="bu">dict</span>(page<span class="op">=</span><span class="dv">1</span>, items<span class="op">=</span>[B(<span class="st">'colophon'</span>, <span class="st">'इति ग्रन्थानुक्रमणिका'</span>), B(<span class="st">'head'</span>, <span class="st">'टीकाकर्तुर्मङ्गलम्'</span>), B(<span class="st">'verse'</span>, <span class="st">'टीका ॥१॥'</span>, <span class="dv">1</span>), B(<span class="st">'head'</span>, <span class="st">'अथ ग्रन्थारम्भः'</span>),</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>                           B(<span class="st">'verse'</span>, <span class="st">'क ॥१॥'</span>, <span class="dv">1</span>), B(<span class="st">'verse'</span>, <span class="st">'ख ॥२॥'</span>, <span class="dv">2</span>), B(<span class="st">'colophon'</span>, <span class="st">'इति होरायां संज्ञाध्यायः प्रथमः ॥१॥'</span>)]),</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>       <span class="bu">dict</span>(page<span class="op">=</span><span class="dv">2</span>, items<span class="op">=</span>[B(<span class="st">'verse'</span>, <span class="st">'रामो राजमणिः ॥१॥'</span>, <span class="dv">1</span>), B(<span class="st">'verse'</span>, <span class="st">'सदा विजयते ॥२॥'</span>, <span class="dv">2</span>), B(<span class="st">'verse'</span>, <span class="st">'गणेशं नमामि ॥१॥'</span>, <span class="dv">1</span>), B(<span class="st">'colophon'</span>, <span class="st">'इति शास्त्रे राशिभेदनामाध्यायः॥ ३॥'</span>),</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>                           B(<span class="st">'head'</span>, <span class="st">'अथोत्तरभागः'</span>), B(<span class="st">'verse'</span>, <span class="st">'च ॥१॥'</span>, <span class="st">'१'</span>), B(<span class="st">'colophon'</span>, <span class="st">'इति उत्तरभागे फलनाम प्रथमोऽध्यायः ॥१॥'</span>),</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>                           B(<span class="st">'colophon'</span>, <span class="st">'इति टीकायां प्रथमोऽध्यायः ॥१॥'</span>)])]</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>_c, _p <span class="op">=</span> assemble_colophon(_bj)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>test_eq([(c[<span class="st">'part'</span>], c[<span class="st">'no'</span>], c[<span class="st">'name'</span>], [v[<span class="st">'n'</span>] <span class="cf">for</span> v <span class="kw">in</span> c[<span class="st">'verses'</span>]]) <span class="cf">for</span> c <span class="kw">in</span> _c],</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>        [(<span class="st">'पूर्व'</span>, <span class="dv">1</span>, <span class="st">'संज्ञ'</span>, [<span class="dv">1</span>, <span class="dv">2</span>]), (<span class="st">'पूर्व'</span>, <span class="dv">2</span>, <span class="va">None</span>, [<span class="dv">1</span>, <span class="dv">2</span>]), (<span class="st">'पूर्व'</span>, <span class="dv">3</span>, <span class="st">'राशिभेद'</span>, [<span class="dv">1</span>]), (<span class="st">'उत्तर'</span>, <span class="dv">1</span>, <span class="st">'फल'</span>, [<span class="dv">1</span>])])</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="bu">any</span>(<span class="st">'no colophon; split'</span> <span class="kw">in</span> x <span class="cf">for</span> x <span class="kw">in</span> _p)</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>test_eq(_cname(<span class="st">'इति श्रीवराहमिहिरकृते बृहज्जातके वियोनिजन्माध्यायस्तृतीयः॥३॥'</span>, _ANCHOR, <span class="st">'ध्याय'</span>), <span class="st">'वियोनिजन्म'</span>)<span class="op">;</span> test_eq(_cnum(<span class="st">'निषेकाध्यायश्चतुर्थः॥ ४॥'</span>, <span class="st">'ध्याय'</span>), <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="akṣaras" class="level2">
+<h2 class="anchored" data-anchor-id="akṣaras">Akṣaras</h2>
+<p>An akṣara is one written syllable: a consonant or a cluster of consonants with its vowel sign, or a vowel letter on its own. Some sequences of Unicode characters can never make a correct akṣara, and they turn up when a model writes Devanagari or when a text was typed or converted from an old font. One example is a virāma (्, the mark that removes a consonant’s vowel) followed by a vowel sign, as in ध्ा. Another is two vowel signs on one consonant.</p>
+<p><code>AKSHARA_BAD</code> names five such faults, each with a pattern, and <a href="https://vedicreader.github.io/lekhaka/verses.html#bad_aksharas"><code>bad_aksharas</code></a> lists the names of those found in a text. <a href="https://vedicreader.github.io/lekhaka/verses.html#fix_aksharas"><code>fix_aksharas</code></a> repairs the ones whose right form is not in doubt:</p>
+<ul>
+<li>an i-sign (ि) typed after a virāma is moved to the end of its consonant cluster, so श्िच becomes श्चि;</li>
+<li>a virāma before a vowel sign or an anusvāra is removed, and so is a visarga after a virāma;</li>
+<li>ट्ः followed by a vowel letter becomes ठ with that vowel’s sign, so कण्ट्ःए becomes कण्ठे;</li>
+<li>a nukta after a vowel sign is removed;</li>
+<li>े or ै followed by ा becomes ो or ौ;</li>
+<li>a vowel letter followed by a sign that makes another vowel, such as अ with ा, becomes that vowel’s letter, here आ;</li>
+<li>a vowel sign typed twice, and a few pairs such as ु followed by ू, become one sign.</li>
+</ul>
+<p>The Taittirīya texts write ग्ं for a nasal, so a virāma before an anusvāra after ग is left as it is.</p>
+<div id="c70fa563" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T04:46:03.296572+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T04:46:03.302948+00:00&quot;,&quot;total&quot;:0.0063796860000024935}}" data-execution_count="19">
+<hr>
+<p><a href="https://github.com/vedicreader/lekhaka/blob/main/lekhaka/verses.py#L254" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="fix_aksharas" class="level3">
+<h3 class="anchored" data-anchor-id="fix_aksharas">fix_aksharas</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fix_aksharas(</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    t:<span class="bu">str</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">str</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Return the Devanagari text <code>t</code> with the malformed akṣaras whose right form is certain repaired.</em></p>
+</section>
+</div>
+<div id="e3b869a3" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T04:46:03.303087+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T04:46:03.306741+00:00&quot;,&quot;total&quot;:0.003659178000006591}}" data-execution_count="20">
+<hr>
+<p><a href="https://github.com/vedicreader/lekhaka/blob/main/lekhaka/verses.py#L250" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="bad_aksharas" class="level3">
+<h3 class="anchored" data-anchor-id="bad_aksharas">bad_aksharas</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> bad_aksharas(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    t:<span class="bu">str</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">list</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>The names, from <code>AKSHARA_BAD</code>, of the malformed akṣaras found in <code>t</code>.</em></p>
+</section>
+</div>
+<div id="0111762c" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>test_eq(fix_aksharas(<span class="st">'श्िच'</span>), <span class="st">'श्चि'</span>)<span class="op">;</span> test_eq(fix_aksharas(<span class="st">'भक्ित'</span>), <span class="st">'भक्ति'</span>)<span class="op">;</span> test_eq(fix_aksharas(<span class="st">'ध्ार्म'</span>), <span class="st">'धार्म'</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>test_eq(fix_aksharas(<span class="st">'कण्ट्ःए'</span>), <span class="st">'कण्ठे'</span>)<span class="op">;</span> test_eq(fix_aksharas(<span class="st">'अाम'</span>), <span class="st">'आम'</span>)<span class="op">;</span> test_eq(fix_aksharas(<span class="st">'ग्ं'</span>), <span class="st">'ग्ं'</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>test_eq(bad_aksharas(<span class="st">'ध्ार्म'</span>), [<span class="st">'virāma before a vowel sign'</span>])<span class="op">;</span> test_eq(bad_aksharas(fix_aksharas(<span class="st">'ध्ार्म'</span>)), [])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="typing-slips" class="level2">
+<h2 class="anchored" data-anchor-id="typing-slips">Typing slips</h2>
+<p>Three small helpers fix slips in Devanagari typed by a person or written by a model.</p>
+<p><a href="https://vedicreader.github.io/lekhaka/verses.html#norm"><code>norm</code></a> turns a colon written after a Devanagari letter into a visarga (ः), writes ASCII digits between ॥ marks in Devanagari digits, and removes spaces before a daṇḍa (। or ॥). So <code>राम: ॥ 1 ॥</code> becomes <code>रामः॥ १॥</code>.</p>
+<p>A pāda is a quarter of a verse, usually printed as a line or half line ending in a daṇḍa. A word at the end of a pāda often ends in a bare consonant marked with a virāma, as in जगत्, and typists drop the virāma. <a href="https://vedicreader.github.io/lekhaka/verses.html#virama"><code>virama</code></a> puts it back when a line ends with one of a few endings that need it, either at the end of the line or before a ।. The endings are त after ा, े, ृ, व or य (-ात्, -ेत्, -ृत्, -वत्, -यत्), न after ा or ि (-ान्, -िन्), and the whole words जगत and सत. A word before ॥ is not changed.</p>
+<p><a href="https://vedicreader.github.io/lekhaka/verses.html#deva"><code>deva</code></a> writes a number in Devanagari digits.</p>
+<div id="ed0d1ccf" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T04:46:03.309796+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T04:46:03.313918+00:00&quot;,&quot;total&quot;:0.004128020000010224}}" data-execution_count="22">
+<hr>
+<p><a href="https://github.com/vedicreader/lekhaka/blob/main/lekhaka/verses.py#L280" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="virama" class="level3">
+<h3 class="anchored" data-anchor-id="virama">virama</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> virama(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    l:<span class="bu">str</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">str</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Restore the virāma a typist drops at the end of a pāda, for the endings -ात्, -ेत्, -ृत्, -वत्, -यत्, -ान्, -िन् and the words जगत्, सत्, before । or the end of the line.</em></p>
+</section>
+</div>
+<div id="cfc96f2a" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T04:46:03.314058+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T04:46:03.318367+00:00&quot;,&quot;total&quot;:0.004313996999997016}}" data-execution_count="23">
+<hr>
+<p><a href="https://github.com/vedicreader/lekhaka/blob/main/lekhaka/verses.py#L273" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="norm" class="level3">
+<h3 class="anchored" data-anchor-id="norm">norm</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> norm(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    t:<span class="bu">str</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">str</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Fix typing slips in <code>t</code>: a colon typed for a visarga, ASCII digits inside <code>॥ n ॥</code>, and spaces before a daṇḍa.</em></p>
+</section>
+</div>
+<div id="1bd5af18" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-10-19T04:46:03.318504+00:00&quot;,&quot;shell.execute_reply&quot;:&quot;2026-10-19T04:46:03.322316+00:00&quot;,&quot;total&quot;:0.0038159900000067637}}" data-execution_count="24">
+<hr>
+<p><a href="https://github.com/vedicreader/lekhaka/blob/main/lekhaka/verses.py#L269" target="_blank" style="float:right; font-size:smaller">source</a></p>
+<section id="deva" class="level3">
+<h3 class="anchored" data-anchor-id="deva">deva</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> deva(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    n</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>)<span class="op">-&gt;</span><span class="bu">str</span>:</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>Write a number in Devanagari digits: 18 becomes १८.</em></p>
+</section>
+</div>
+<div id="4799bafa" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>test_eq(deva(<span class="dv">18</span>), <span class="st">'१८'</span>)<span class="op">;</span> test_eq(norm(<span class="st">'रामः वनं गच्छति:  ।</span><span class="ch">\n</span><span class="st">सीता ॥ 12 ॥'</span>), <span class="st">'रामः वनं गच्छतिः।</span><span class="ch">\n</span><span class="st">सीता॥ १२॥'</span>)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>test_eq(virama(<span class="st">'भगवत ।'</span>), <span class="st">'भगवत् ।'</span>)<span class="op">;</span> test_eq(virama(<span class="st">'महान'</span>), <span class="st">'महान्'</span>)<span class="op">;</span> test_eq(virama(<span class="st">'जगत'</span>), <span class="st">'जगत्'</span>)<span class="op">;</span> test_eq(virama(<span class="st">'राम ।'</span>), <span class="st">'राम ।'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/vedicreader\.github\.io\/lekhaka");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/vedicreader/lekhaka/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
